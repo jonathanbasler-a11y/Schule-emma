@@ -303,18 +303,14 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
 .keys input { width: 64px; border: 2px solid var(--line); border-radius: 8px; padding: 4px 6px; background: var(--bg); }
 
 /* Mochi */
-.mochi .fur { fill: var(--fur); }
-.mochi .head { fill: var(--fur); }
-.mochi .belly { fill: var(--belly); }
-.mochi .paw { fill: var(--fur2); }
-.mochi .ear { fill: var(--fur2); }
-.mochi .earin { fill: #8f5f3c; }
-.mochi .snout { fill: var(--snout); }
-.mochi .nose { fill: #3a261a; }
-.mochi .eye { fill: #2b1c13; }
+.mochi .eye { fill: #1e130c; }
+.mochi .iris { fill: #3a2417; }
 .mochi .lid { stroke: #2b1c13; stroke-width: 3.2; fill: none; stroke-linecap: round; }
 .mochi .lid.thin { stroke-width: 2.4; }
-.mochi .blush { fill: #e8968a; opacity: .55; }
+.mochi .lash { stroke: #2b1c13; stroke-width: 2.2; fill: none; stroke-linecap: round; }
+.mochi .nostril { fill: #2b1a10; }
+.mochi .hair { stroke: #6e4a30; stroke-width: 1.6; fill: none; stroke-linecap: round; opacity: .45; }
+.mochi .blush { fill: #f2918a; opacity: .6; }
 .mochi .shadow { fill: rgba(70, 40, 20, .18); }
 .mochi .zz { font-size: 22px; font-weight: 800; fill: var(--muted); animation: float 2.4s ease-in-out infinite; }
 .mochi .zz.small { font-size: 15px; animation-delay: .6s; }
