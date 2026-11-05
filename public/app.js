@@ -14,7 +14,7 @@
   // ---------- Spielstand ----------
   function fresh() {
     return {
-      v: 1, xp: 0, gens: {}, box: [], exams: [], exam: null, stickers: [], wear: ["yuzu"], scene: "onsen",
+      v: 1, xp: 0, gens: {}, box: [], exams: [], exam: null, stickers: [], wear: [], scene: "onsen",
       days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: {},
       set: { date: "2026-11-09", examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
@@ -34,6 +34,8 @@
     o.box = o.box.filter((b) => b && A.G[b.gen]);
     if (o.exam && (!o.exam.seed || !o.exam.start)) o.exam = null;
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
+    // Mochi trägt die Mandarine nicht mehr von selbst
+    if (!o.flags.ohneYuzu) { o.wear = o.wear.filter((w) => w !== "yuzu"); o.flags.ohneYuzu = true; }
     return o;
   }
   let S = load();
