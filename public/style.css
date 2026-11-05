@@ -309,8 +309,10 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
 .mochi .lid.thin { stroke-width: 2.4; }
 .mochi .lash { stroke: #2b1c13; stroke-width: 2.2; fill: none; stroke-linecap: round; }
 .mochi .nostril { fill: #2b1a10; }
-.mochi .hair { stroke: #6e4a30; stroke-width: 1.6; fill: none; stroke-linecap: round; opacity: .45; }
-.mochi .blush { fill: #f2918a; opacity: .6; }
+.mochi .hair { stroke: #8a5230; stroke-width: 2.4; fill: none; stroke-linecap: round; opacity: .6; }
+.mochi .ypath { stroke: #3b2418; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.mochi .blushl { stroke: #e8737f; stroke-width: 1.8; fill: none; stroke-linecap: round; }
+.mochi .blush { fill: #f8a5a8; opacity: .85; }
 .mochi .shadow { fill: rgba(70, 40, 20, .18); }
 .mochi .zz { font-size: 22px; font-weight: 800; fill: var(--muted); animation: float 2.4s ease-in-out infinite; }
 .mochi .zz.small { font-size: 15px; animation-delay: .6s; }

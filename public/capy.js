@@ -5,20 +5,16 @@
   // ---------- Mochi als SVG ----------
   // mood: calm | happy | think | sleepy | proud ; wear: Liste von Outfit-IDs
   let uid = 0;
-  // Fell-Striche (fest, damit Mochi immer gleich aussieht)
-  const HAIR_HEAD = [[70, 40, -14], [80, 36, -8], [92, 33, -4], [104, 33, 4], [116, 35, 8], [128, 39, 14], [66, 54, -20], [134, 54, 20], [62, 74, -26], [138, 74, 26], [86, 46, -6], [114, 46, 6], [100, 42, 0]];
-  const HAIR_BODY = [[56, 128, -30], [50, 146, -40], [52, 166, -50], [146, 128, 30], [150, 146, 40], [148, 166, 50], [70, 116, -20], [130, 116, 20], [62, 178, -60], [138, 178, 60]];
-  const hair = (list, len) => list.map(([x, y, a]) => { const r = (a * Math.PI) / 180, dx = Math.sin(r) * len, dy = -Math.cos(r) * len; return `M${x} ${y} q${(dx / 2 + 2).toFixed(1)} ${(dy / 2).toFixed(1)} ${dx.toFixed(1)} ${dy.toFixed(1)}`; }).join(" ");
+  const OL = "#8a5230"; // weiche braune Umrandung wie bei einem Sticker
   function eye(cx, cy, side, mood) {
     // side: -1 links, 1 rechts. Wimpern zeigen nach außen.
-    const lash = (o) => `<path d="M${cx + side * 6} ${cy - 8 + o} l${side * 5} ${-4 + o / 2} M${cx + side * 8.5} ${cy - 5 + o} l${side * 6} ${-2 + o / 2} M${cx + side * 9.5} ${cy - 1 + o} l${side * 6} ${0 + o / 2}" class="lash"/>`;
-    if (mood === "happy" || mood === "proud") return `<path d="M${cx - 9} ${cy + 2} Q${cx} ${cy - 9} ${cx + 9} ${cy + 2}" class="lid"/>${lash(2)}`;
-    if (mood === "sleepy") return `<path d="M${cx - 9} ${cy - 1} Q${cx} ${cy + 7} ${cx + 9} ${cy - 1}" class="lid"/>${lash(5)}`;
+    const lash = (o) => `<path d="M${cx + side * 7} ${cy - 6 + o} l${side * 5} ${-3 + o / 2} M${cx + side * 8.5} ${cy - 2 + o} l${side * 6} ${-1 + o / 2}" class="lash"/>`;
+    if (mood === "happy" || mood === "proud") return `<path d="M${cx - 8} ${cy + 3} Q${cx} ${cy - 8} ${cx + 8} ${cy + 3}" class="lid"/>${lash(2)}`;
+    if (mood === "sleepy") return `<path d="M${cx - 8} ${cy} Q${cx} ${cy + 7} ${cx + 8} ${cy}" class="lid"/>${lash(5)}`;
     const look = mood === "think" ? -3 : 0;
-    return `<ellipse cx="${cx}" cy="${cy}" rx="9.5" ry="11" class="eye"/>
-      <ellipse cx="${cx}" cy="${cy + 1}" rx="7.5" ry="9" class="iris"/>
-      <circle cx="${cx + 3}" cy="${cy - 4 + look}" r="3.6" fill="#fff"/><circle cx="${cx - 3}" cy="${cy + 4 + look}" r="1.6" fill="#fff" opacity=".9"/>
-      ${lash(0)}${mood === "think" ? `<path d="M${cx - 9} ${cy - 15 - (side > 0 ? 3 : 0)} q9 -5 18 0" class="lid thin"/>` : ""}`;
+    return `<ellipse cx="${cx}" cy="${cy}" rx="7.6" ry="9" class="eye"/>
+      <circle cx="${cx + 2.6}" cy="${cy - 3.4 + look}" r="3" fill="#fff"/><circle cx="${cx - 2.4}" cy="${cy + 3.4 + look}" r="1.4" fill="#fff" opacity=".9"/>
+      ${lash(0)}${mood === "think" ? `<path d="M${cx - 8} ${cy - 13 - (side > 0 ? 3 : 0)} q8 -4 16 0" class="lid thin"/>` : ""}`;
   }
   // Mochi als SVG. mood: calm | happy | think | sleepy | proud ; wear: Liste von Outfit-IDs
   function mochi(mood, wear, size) {
@@ -28,36 +24,36 @@
     let front = "", top = "";
     if (has("schal")) front += `<path d="M54 128 Q100 150 146 128 L148 141 Q100 166 52 141 Z" fill="#c8643b"/><path d="M56 133 Q100 153 144 133" stroke="#e8a27a" stroke-width="3" fill="none" stroke-dasharray="6 6"/><path d="M120 142 L128 176 L113 178 L109 146 Z" fill="#c8643b"/><path d="M114 176 l2 6 M119 176 l1 6 M124 175 l2 6" stroke="#c8643b" stroke-width="2"/>`;
     if (has("tee")) front += `<g transform="translate(80 152)"><path d="M0 0 H36 Q34 24 18 24 Q2 24 0 0 Z" fill="#f4ead8" stroke="#7b5236" stroke-width="2"/><path d="M36 5 Q46 6 44 13 Q42 19 34 17" fill="none" stroke="#7b5236" stroke-width="2.5"/><path d="M10 -6 Q6 -12 10 -18 M20 -6 Q16 -13 20 -20 M28 -6 Q24 -11 28 -16" stroke="#cdb9a1" stroke-width="2" fill="none" class="steam"/><rect x="4" y="3" width="28" height="4" rx="2" fill="#a8743f" opacity=".5"/></g>`;
-    if (has("muetze")) top += `<path d="M54 52 Q56 12 100 10 Q144 12 146 52 Z" fill="#d9a441"/><rect x="50" y="44" width="100" height="14" rx="7" fill="#b8862c"/><path d="M62 46 V56 M74 46 V56 M86 46 V56 M98 46 V56 M110 46 V56 M122 46 V56 M134 46 V56" stroke="#a3751f" stroke-width="2"/><circle cx="100" cy="9" r="10" fill="#f1dcae"/>`;
-    if (has("yuzu")) top += `<circle cx="100" cy="22" r="14" fill="#f0a23a"/><circle cx="95" cy="17" r="3" fill="#f8c97a"/><path d="M100 9 Q108 0 116 6 Q108 12 100 9" fill="#7c9a52"/>`;
-    if (has("blatt")) top += `<g transform="translate(118 30) rotate(25)"><path d="M0 0 Q12 -16 26 -2 Q14 14 0 0 Z" fill="#c8643b"/><path d="M0 0 L26 -2" stroke="#8d3f22" stroke-width="1.5"/></g>`;
-    if (has("kopfhoerer")) top += `<path d="M50 74 Q48 18 100 16 Q152 18 150 74" fill="none" stroke="#6b4a6e" stroke-width="7"/><rect x="38" y="60" width="18" height="30" rx="8" fill="#8a6390"/><rect x="144" y="60" width="18" height="30" rx="8" fill="#8a6390"/>`;
-    const glasses = has("brille") ? `<g fill="none" stroke="#4a3426" stroke-width="2.6"><circle cx="80" cy="70" r="14"/><circle cx="120" cy="70" r="14"/><path d="M94 69 Q100 65 106 69"/></g>` : "";
-    const mouth = mood === "happy" || mood === "proud" ? `<path d="M100 109 V114 M90 114 Q95 121 100 114 Q105 121 110 114" class="lid thin"/>` : `<path d="M100 109 V114 M92 114 Q96 118 100 114 Q104 118 108 114" class="lid thin"/>`;
+    if (has("muetze")) top += `<path d="M54 52 Q56 12 100 10 Q144 12 146 52 Z" fill="#d9a441" stroke="${OL}" stroke-width="2.5"/><rect x="50" y="44" width="100" height="14" rx="7" fill="#b8862c" stroke="${OL}" stroke-width="2.5"/><path d="M62 46 V56 M74 46 V56 M86 46 V56 M98 46 V56 M110 46 V56 M122 46 V56 M134 46 V56" stroke="#a3751f" stroke-width="2"/><circle cx="100" cy="9" r="10" fill="#f1dcae" stroke="${OL}" stroke-width="2.5"/>`;
+    if (has("yuzu")) top += `<circle cx="100" cy="22" r="14" fill="#f0a23a" stroke="${OL}" stroke-width="2.5"/><circle cx="95" cy="17" r="3" fill="#f8c97a"/><path d="M100 9 Q108 0 116 6 Q108 12 100 9" fill="#7c9a52"/>`;
+    if (has("blatt")) top += `<g transform="translate(118 30) rotate(25)"><path d="M0 0 Q12 -16 26 -2 Q14 14 0 0 Z" fill="#c8643b" stroke="${OL}" stroke-width="2"/><path d="M0 0 L26 -2" stroke="#8d3f22" stroke-width="1.5"/></g>`;
+    if (has("kopfhoerer")) top += `<path d="M50 74 Q48 18 100 16 Q152 18 150 74" fill="none" stroke="#6b4a6e" stroke-width="7"/><rect x="38" y="60" width="18" height="30" rx="8" fill="#8a6390" stroke="${OL}" stroke-width="2"/><rect x="144" y="60" width="18" height="30" rx="8" fill="#8a6390" stroke="${OL}" stroke-width="2"/>`;
+    const glasses = has("brille") ? `<g fill="none" stroke="#4a3426" stroke-width="2.6"><circle cx="74" cy="68" r="14"/><circle cx="126" cy="68" r="14"/><path d="M88 67 Q100 62 112 67"/></g>` : "";
     return `<svg class="mochi m-${mood}" viewBox="0 0 200 200" width="${size || 160}" height="${size || 160}" role="img" aria-label="Mochi, das Capybara">
       <defs>
-        <radialGradient id="${id}f" cx="45%" cy="35%" r="70%"><stop offset="0" stop-color="var(--fur-light, #c99a6b)"/><stop offset=".65" stop-color="var(--fur, #a8774b)"/><stop offset="1" stop-color="var(--fur-dark, #85593a)"/></radialGradient>
-        <radialGradient id="${id}s" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="#8a5c3d"/><stop offset="1" stop-color="#5e3d28"/></radialGradient>
-        <filter id="${id}x" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5"/></filter>
+        <radialGradient id="${id}f" cx="42%" cy="32%" r="75%"><stop offset="0" stop-color="#f0b977"/><stop offset=".7" stop-color="#e09f5c"/><stop offset="1" stop-color="#cf8a4a"/></radialGradient>
+        <radialGradient id="${id}s" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#c47c47"/><stop offset="1" stop-color="#9a5a30"/></radialGradient>
       </defs>
-      <ellipse cx="100" cy="188" rx="62" ry="7" class="shadow"/>
-      <g filter="url(#${id}x)">
-        <path d="M40 150 C34 112 66 98 100 98 C138 98 168 114 164 152 C162 178 132 188 100 188 C66 188 42 178 40 150 Z" fill="url(#${id}f)"/>
-        <ellipse cx="100" cy="158" rx="34" ry="25" fill="var(--fur-light, #c99a6b)" opacity=".7"/>
-        <rect x="70" y="174" width="22" height="14" rx="7" fill="var(--fur-dark, #85593a)"/><rect x="108" y="174" width="22" height="14" rx="7" fill="var(--fur-dark, #85593a)"/>
+      <ellipse cx="100" cy="190" rx="62" ry="7" class="shadow"/>
+      <g stroke="${OL}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M42 152 C38 118 66 104 100 106 C134 104 162 118 158 152 C156 178 130 188 100 188 C70 188 44 178 42 152 Z" fill="url(#${id}f)"/>
+        <ellipse cx="100" cy="160" rx="30" ry="22" fill="#f3d3a2" stroke="none"/>
+        <rect x="68" y="172" width="24" height="16" rx="8" fill="#d6934f"/><rect x="108" y="172" width="24" height="16" rx="8" fill="#d6934f"/>
+        <ellipse cx="84" cy="146" rx="10" ry="8" fill="#e5a763"/><ellipse cx="116" cy="146" rx="10" ry="8" fill="#e5a763"/>
       </g>
-      <path d="${hair(HAIR_BODY, 9)}" class="hair"/>
+      <path d="M52 140 l6 -4 M50 158 l7 -3 M148 140 l-6 -4 M150 158 l-7 -3" class="hair"/>
       <g class="headg">
-        <g filter="url(#${id}x)">
-          <ellipse cx="62" cy="40" rx="11" ry="10" fill="var(--fur-dark, #85593a)"/><ellipse cx="138" cy="40" rx="11" ry="10" fill="var(--fur-dark, #85593a)"/>
-          <path d="M57 62 C57 36 78 28 100 28 C122 28 143 36 143 62 L145 104 C145 128 126 138 100 138 C74 138 55 128 55 104 Z" fill="url(#${id}f)"/>
+        <g stroke="${OL}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+          <circle cx="64" cy="42" r="10" fill="#e09f5c"/><circle cx="136" cy="42" r="10" fill="#e09f5c"/>
+          <path d="M54 70 C54 42 72 30 100 30 C128 30 146 42 146 70 L148 104 C148 128 128 138 100 138 C72 138 52 128 52 104 Z" fill="url(#${id}f)"/>
         </g>
-        <ellipse cx="62" cy="41" rx="5.5" ry="5" fill="#6b4429"/><ellipse cx="138" cy="41" rx="5.5" ry="5" fill="#6b4429"/>
-        <path d="${hair(HAIR_HEAD, 7)}" class="hair"/>
-        <path d="M66 100 C66 88 80 84 100 84 C120 84 134 88 134 100 L134 112 C134 128 120 134 100 134 C80 134 66 128 66 112 Z" fill="url(#${id}s)"/>
-        <ellipse cx="88" cy="97" rx="3.4" ry="5" transform="rotate(30 88 97)" class="nostril"/><ellipse cx="112" cy="97" rx="3.4" ry="5" transform="rotate(-30 112 97)" class="nostril"/>
-        <ellipse cx="64" cy="92" rx="10" ry="6" class="blush"/><ellipse cx="136" cy="92" rx="10" ry="6" class="blush"/>
-        ${eye(80, 70, -1, mood)}${eye(120, 70, 1, mood)}${mouth}${glasses}${top}
+        <ellipse cx="64" cy="43" rx="5" ry="4.6" fill="#b5683a"/><ellipse cx="136" cy="43" rx="5" ry="4.6" fill="#b5683a"/>
+        <path d="M70 46 l5 4 M80 40 l3 5 M122 44 l-3 5 M130 52 l-5 3" class="hair"/>
+        <ellipse cx="100" cy="106" rx="38" ry="29" fill="url(#${id}s)"/>
+        <path d="M100 90 V103 M100 103 Q93 113 85 108 M100 103 Q107 113 115 108" class="ypath"/>
+        <ellipse cx="58" cy="96" rx="11" ry="6.5" class="blush"/><ellipse cx="142" cy="96" rx="11" ry="6.5" class="blush"/>
+        <path d="M54 94 l3 3 M59 93 l3 3 M64 93 l3 3 M146 94 l-3 3 M141 93 l-3 3 M136 93 l-3 3" class="blushl"/>
+        ${eye(74, 66, -1, mood)}${eye(126, 66, 1, mood)}${glasses}${top}
       </g>
       ${front}
       ${mood === "sleepy" ? `<text x="150" y="40" class="zz">z</text><text x="162" y="26" class="zz small">z</text>` : ""}

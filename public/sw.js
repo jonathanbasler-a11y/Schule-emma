@@ -1,5 +1,5 @@
 // Offline-Modus: mit Internet immer die neueste Version laden, ohne Internet aus dem Speicher.
-const CACHE = "capy-mathe-v2";
+const CACHE = "capy-mathe-v3";
 const FILES = ["./", "index.html", "style.css", "aufgaben.js", "capy.js", "app.js", "manifest.webmanifest", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", (e) => {
