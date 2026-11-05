@@ -1,0 +1,9 @@
+{
+  "name": "schule-emma",
+  "version": "1.0.0",
+  "description": "Capy & Mathe – Lern-App fürs iPad zur Mathe-Klassenarbeit Klasse 5",
+  "private": true,
+  "scripts": {
+    "test": "node tools/test-aufgaben.mjs && node tools/e2e.mjs && node tools/test-offline.mjs"
+  }
+}
