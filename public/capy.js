@@ -21,7 +21,7 @@
     wear = wear || [];
     const has = (k) => wear.includes(k);
     const id = "m" + (uid++);
-    let front = "", top = "";
+    let front = "", top = "", back = "", faceX = "";
     if (has("schal")) front += `<path d="M54 128 Q100 150 146 128 L148 141 Q100 166 52 141 Z" fill="#c8643b"/><path d="M56 133 Q100 153 144 133" stroke="#e8a27a" stroke-width="3" fill="none" stroke-dasharray="6 6"/><path d="M120 142 L128 176 L113 178 L109 146 Z" fill="#c8643b"/><path d="M114 176 l2 6 M119 176 l1 6 M124 175 l2 6" stroke="#c8643b" stroke-width="2"/>`;
     if (has("tee")) front += `<g transform="translate(80 152)"><path d="M0 0 H36 Q34 24 18 24 Q2 24 0 0 Z" fill="#f4ead8" stroke="#7b5236" stroke-width="2"/><path d="M36 5 Q46 6 44 13 Q42 19 34 17" fill="none" stroke="#7b5236" stroke-width="2.5"/><path d="M10 -6 Q6 -12 10 -18 M20 -6 Q16 -13 20 -20 M28 -6 Q24 -11 28 -16" stroke="#cdb9a1" stroke-width="2" fill="none" class="steam"/><rect x="4" y="3" width="28" height="4" rx="2" fill="#a8743f" opacity=".5"/></g>`;
     if (has("muetze")) top += `<path d="M54 52 Q56 12 100 10 Q144 12 146 52 Z" fill="#d9a441" stroke="${OL}" stroke-width="2.5"/><rect x="50" y="44" width="100" height="14" rx="7" fill="#b8862c" stroke="${OL}" stroke-width="2.5"/><path d="M62 46 V56 M74 46 V56 M86 46 V56 M98 46 V56 M110 46 V56 M122 46 V56 M134 46 V56" stroke="#a3751f" stroke-width="2"/><circle cx="100" cy="9" r="10" fill="#f1dcae" stroke="${OL}" stroke-width="2.5"/>`;
@@ -29,12 +29,16 @@
     if (has("blatt")) top += `<g transform="translate(118 30) rotate(25)"><path d="M0 0 Q12 -16 26 -2 Q14 14 0 0 Z" fill="#c8643b" stroke="${OL}" stroke-width="2"/><path d="M0 0 L26 -2" stroke="#8d3f22" stroke-width="1.5"/></g>`;
     if (has("kopfhoerer")) top += `<path d="M50 74 Q48 18 100 16 Q152 18 150 74" fill="none" stroke="#6b4a6e" stroke-width="7"/><rect x="38" y="60" width="18" height="30" rx="8" fill="#8a6390" stroke="${OL}" stroke-width="2"/><rect x="144" y="60" width="18" height="30" rx="8" fill="#8a6390" stroke="${OL}" stroke-width="2"/>`;
     const glasses = has("brille") ? `<g fill="none" stroke="#4a3426" stroke-width="2.6"><circle cx="74" cy="68" r="14"/><circle cx="126" cy="68" r="14"/><path d="M88 67 Q100 62 112 67"/></g>` : "";
+    // neue Teile aus garderobe.js: Ebenen hinter dem Körper, im Gesicht, vor dem Körper und auf dem Kopf
+    const EX = (root.Capy && root.Capy.EXTRA) || {};
+    for (const k of wear) { const d = EX[k]; if (!d) continue; if (d.l === "top") top += d.svg; else if (d.l === "face") faceX += d.svg; else if (d.l === "back") back += d.svg; else front += d.svg; }
     return `<svg class="mochi m-${mood}" viewBox="0 0 200 200" width="${size || 160}" height="${size || 160}" role="img" aria-label="Mochi, das Capybara">
       <defs>
         <radialGradient id="${id}f" cx="42%" cy="32%" r="75%"><stop offset="0" stop-color="#f0b977"/><stop offset=".7" stop-color="#e09f5c"/><stop offset="1" stop-color="#cf8a4a"/></radialGradient>
         <radialGradient id="${id}s" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#c47c47"/><stop offset="1" stop-color="#9a5a30"/></radialGradient>
       </defs>
       <ellipse cx="100" cy="190" rx="62" ry="7" class="shadow"/>
+      ${back}
       <g stroke="${OL}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
         <path d="M42 152 C38 118 66 104 100 106 C134 104 162 118 158 152 C156 178 130 188 100 188 C70 188 44 178 42 152 Z" fill="url(#${id}f)"/>
         <ellipse cx="100" cy="160" rx="30" ry="22" fill="#f3d3a2" stroke="none"/>
@@ -53,7 +57,7 @@
         <path d="M100 90 V103 M100 103 Q93 113 85 108 M100 103 Q107 113 115 108" class="ypath"/>
         <ellipse cx="58" cy="96" rx="11" ry="6.5" class="blush"/><ellipse cx="142" cy="96" rx="11" ry="6.5" class="blush"/>
         <path d="M54 94 l3 3 M59 93 l3 3 M64 93 l3 3 M146 94 l-3 3 M141 93 l-3 3 M136 93 l-3 3" class="blushl"/>
-        ${eye(74, 66, -1, mood)}${eye(126, 66, 1, mood)}${glasses}${top}
+        ${eye(74, 66, -1, mood)}${eye(126, 66, 1, mood)}${glasses}${faceX}${top}
       </g>
       ${front}
       ${mood === "sleepy" ? `<text x="150" y="40" class="zz">z</text><text x="162" y="26" class="zz small">z</text>` : ""}
@@ -89,7 +93,7 @@
       regen: `<rect width="${W}" height="${H}" fill="#e9dccb"/><rect x="60" y="20" width="280" height="150" rx="10" fill="#7f97a8"/><rect x="60" y="20" width="280" height="150" rx="10" fill="none" stroke="#8a5e3c" stroke-width="10"/><rect x="196" y="20" width="8" height="150" fill="#8a5e3c"/>${Array.from({ length: 22 }, (_, i) => `<line class="rain" style="animation-delay:${(i % 7) * 0.25}s" x1="${70 + (i * 13) % 260}" y1="${30 + (i * 23) % 120}" x2="${66 + (i * 13) % 260}" y2="${42 + (i * 23) % 120}" stroke="#d7e3ea" stroke-width="2" stroke-linecap="round"/>`).join("")}<rect x="40" y="168" width="320" height="14" rx="4" fill="#a8743f"/><rect y="182" width="${W}" height="38" fill="#c9a77f"/><g transform="translate(300 140)"><rect x="0" y="0" width="22" height="26" rx="4" fill="#7c9a52"/><path d="M11 0 Q0 -20 -8 -10 M11 0 Q18 -24 26 -12 M11 0 Q10 -26 14 -28" stroke="#5d7a3a" stroke-width="4" fill="none"/></g>`,
       tee: `<rect width="${W}" height="${H}" fill="#f3e6cf"/>${[0, 1, 2, 3].map((i) => `<rect x="${20 + i * 95}" y="20" width="85" height="150" fill="#fbf4e6" stroke="#8a5e3c" stroke-width="5"/><path d="M${20 + i * 95} 70 h85 M${20 + i * 95} 120 h85 M${62 + i * 95} 20 v150" stroke="#8a5e3c" stroke-width="2"/>`).join("")}<g class="lantern"><line x1="350" y1="0" x2="350" y2="30" stroke="#6e4a33" stroke-width="2"/><ellipse cx="350" cy="55" rx="22" ry="28" fill="#c8643b"/><ellipse cx="350" cy="55" rx="14" ry="28" fill="#e07a4f"/></g><rect y="170" width="${W}" height="50" fill="#b98a5a"/><rect y="170" width="${W}" height="6" fill="#8a5e3c"/>`,
       sterne: `<rect width="${W}" height="${H}" fill="url(#gNacht)"/>${Array.from({ length: 40 }, (_, i) => `<circle class="star" style="animation-delay:${(i % 9) * 0.4}s" cx="${(i * 97) % 400}" cy="${(i * 53) % 150}" r="${(i % 3) * 0.7 + 0.8}" fill="#fff4d6"/>`).join("")}<circle cx="320" cy="50" r="22" fill="#f6e3b4"/><circle cx="330" cy="44" r="20" fill="#2d2a4a"/><path d="M0 180 Q100 150 200 170 T400 165 V220 H0Z" fill="#3b3557"/><path d="M0 200 Q120 180 240 196 T400 192 V220 H0Z" fill="#2a2640"/>`,
-    }[id] || "";
+    }[id] || (root.Capy && root.Capy.XSCENES && root.Capy.XSCENES[id] ? root.Capy.XSCENES[id](W, H) : "");
     return `<svg class="scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
       <linearGradient id="gOnsen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d9b9"/><stop offset="1" stop-color="#e9c7a0"/></linearGradient>
       <linearGradient id="gWald" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6dfb8"/><stop offset="1" stop-color="#eac595"/></linearGradient>
