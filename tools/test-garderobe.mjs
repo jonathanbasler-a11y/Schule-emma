@@ -64,11 +64,18 @@ for (const o of O) {
 }
 // Anfang: viel ist schon frei
 const free = O.filter((o) => o.xp === 0);
-ok(free.length >= 40, "von Anfang an frei: " + free.length + " von " + O.length);
+ok(free.length >= 8 && free.length <= 16, "nur ein kleiner Startsatz ist frei: " + free.length + " von " + O.length);
 ok(slots.every((sl) => free.some((o) => o.slot === sl)), "in jedem Bereich ist etwas frei");
 ok(slots.filter((sl) => O.filter((o) => o.slot === sl).length >= 3).length >= 7, "mindestens 3 Teile in den meisten Bereichen");
-ok(S.filter((s) => s.xp === 0).length >= 8, "viele Orte von Anfang an frei");
-ok(Math.max(...O.map((o) => o.xp)) <= 400 && Math.max(...S.map((o) => o.xp)) <= 400, "Freischaltungen bleiben erreichbar (höchstens 400)");
+ok(S.filter((s) => s.xp === 0).length >= 3 && S.filter((s) => s.xp === 0).length <= 5, "ein paar Orte von Anfang an frei");
+ok(Math.max(...O.map((o) => o.xp)) <= 1500 && Math.max(...S.map((o) => o.xp)) <= 1500, "Freischaltungen bleiben erreichbar (höchstens 1500)");
+// langsam und gleichmäßig: nie viele Teile auf einmal, die ersten kommen nach ca. 30 Punkten (3 richtige Aufgaben)
+{
+  const xs = O.filter((o) => o.xp > 0).map((o) => o.xp).sort((a, b) => a - b);
+  ok(xs[0] >= 30 && xs[0] <= 60, "das erste neue Teil kommt nach etwa 3 richtigen Aufgaben: " + xs[0]);
+  ok(xs.every((v, i) => i === 0 || v - xs[i - 1] <= 100), "keine großen Lücken beim Freischalten");
+  ok(O.filter((o) => o.xp > 0 && o.xp <= 300).length <= 12, "in den ersten 300 Punkten höchstens 12 neue Teile");
+}
 // Orte
 for (const s of S) {
   const svg = C.scene(s.id);

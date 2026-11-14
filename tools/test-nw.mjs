@@ -82,8 +82,17 @@ for (const id of ids) for (const lvl of A.G[id].lvls) for (let seed = 1; seed <=
     if (m) { const innen = N.PLANETEN.indexOf(m[1]) < 4; ok(t.answer === (/innerer oder/.test(t.q) ? (innen ? "innerer Planet" : "äußerer Planet") : innen ? "fest" : "gasförmig"), "innen/außen: " + where); }
     else ok(num(t.answer) === N.PLANETEN.length, "Anzahl der Planeten: " + where);
   }
-  if (id === "nw.gradnetz.zahl") ok(num(t.answer) === 360, "360 Längenkreise");
+  if (id === "nw.gradnetz.zahl") {
+    const k = (re) => Number((t.q.match(re) || [])[1]);
+    const want = /Längenkreise gibt es insgesamt/.test(t.q) ? 360 : /Äquator<\/b>\?/.test(t.q) || /Nullmeridian/.test(t.q) && /Längengrad/.test(t.q) ? 0
+      : /Nordpol<\/b>\? \(Gib/.test(t.q) || /Äquator bis zum Südpol/.test(t.q) ? 90 : /nach <b>Westen/.test(t.q) ? 180 : /einer Stunde/.test(t.q) ? 15
+      : /gehst (\d+) Grad nach Norden/.test(t.q) ? k(/gehst (\d+)/) : /bis zum <b>Nordpol/.test(t.q) ? 90 - k(/auf (\d+) Grad/) : /auseinander/.test(t.q) ? 360 - k(/liegen (\d+) Grad/) : NaN;
+    ok(num(t.answer) === want, `Gradnetz-Zahlen: ${t.q} -> ${t.answer}, erwartet ${want}`);
+  }
 }
+
+// ---- Vielfalt: das Thema „Gradnetz: Zahlen“ darf sich nicht in jeder Runde wiederholen ----
+for (const l of [1, 2, 3]) { const q = new Set(); for (let i = 1; i <= 80; i++) q.add(A.make("nw.gradnetz.zahl", l, i).q); ok(q.size >= 7, `Gradnetz-Zahlen Stufe ${l}: ${q.size} verschiedene Fragen`); }
 
 // ---- Zeichnungen unabhängig prüfen ----
 const RED = "#e0364d";

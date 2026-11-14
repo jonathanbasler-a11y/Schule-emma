@@ -3,7 +3,9 @@
 Lern-App fürs iPad für Emmas erste Mathe-Klassenarbeit in Klasse 5 (Gymnasium BW, Kapitel I „Die natürlichen Zahlen“). Mochi, das Capybara, übt mit ihr.
 
 ## Cozy Winter
-Die App ist im Winter-Design (Schnee, Eisblau, Tannengrün, dazu Schneefall, der sich ausschalten lässt; in den Einstellungen gibt es auch das Herbst-Design). Mochi hat über 50 Teile: Mützen, Brillen, Schals, Schmuck, Pullover und Jacken, Dinge in der Hand, Flügel und kleine Freunde, die meisten gleich von Anfang an frei, pro Bereich ein Teil. Dazu 15 Orte (Onsen im Schnee, Winterwald, Berghütte, Eissee, Weihnachtsmarkt, Iglu, Nordlicht, Weihnachtsbaum, Lebkuchenhaus …). Code in `public/garderobe.js`, Tests `tools/test-garderobe.mjs` und `tools/e2e-winter.mjs`.
+Die App ist im Winter-Design (Schnee, Eisblau, Tannengrün, dazu Schneefall, der sich ausschalten lässt; in den Einstellungen gibt es auch das Herbst-Design). Mochi hat über 50 Teile: Mützen, Brillen, Schals, Schmuck, Pullover und Jacken, Dinge in der Hand, Flügel und kleine Freunde, nur ein kleiner Startsatz (9 Teile) ist gleich frei, der Rest wird gleichmäßig bis 1450 Schneeflocken freigeschaltet (ein neues Teil alle ca. 30 Punkte), pro Bereich ein Teil. Dazu 15 Orte (4 gleich frei, der Rest gestaffelt) (Onsen im Schnee, Winterwald, Berghütte, Eissee, Weihnachtsmarkt, Iglu, Nordlicht, Weihnachtsbaum, Lebkuchenhaus …). Code in `public/garderobe.js`, Tests `tools/test-garderobe.mjs` und `tools/e2e-winter.mjs`.
+
+Fragen wiederholen sich nicht: in den Übungsrunden wird eine bereits gestellte Frage (die letzten 60 der Sitzung) übersprungen, und „Gradnetz: Zahlen“ hat jetzt viele verschiedene Fragen.
 
 Der Fortschritt geht nicht verloren: Er wird zweifach im Browser und zusätzlich in IndexedDB gespeichert (und beim Schließen noch einmal), ein beschädigter Stand wird aus der Kopie wiederhergestellt. In den Einstellungen gibt es „Sicherung speichern“ (Datei `capy-sicherung-Datum.json`) und „Sicherung laden“. Die Versionsanzeige oben zeigt „gesichert ✓“ oder wird amber, wenn die letzte Sicherungsdatei älter als 3 Tage ist; Antippen speichert eine Sicherung. Test: `tools/e2e-sicherung.mjs`.
 
