@@ -41,6 +41,7 @@ const S = (p) => p.evaluate(() => JSON.parse(JSON.stringify(window.__EMMA.S)));
   check(st.scene === "onsenschnee" && st.wear.includes("bommel"), "Startort: Onsen im Schnee, Mochi trägt Bommelmütze");
   check(/❄️/.test(await p.textContent(".topr")), "Punkte heißen Schneeflocken ❄️");
   check(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--bg").trim()) === "#eef4fb" || await p.evaluate(() => document.documentElement.dataset.theme) === "dark", "Winter-Farben aktiv");
+  check(/^Version \d+$/.test((await p.textContent("#ver")).trim()), "Versionsnummer sichtbar: " + (await p.textContent("#ver")));
   await shot(p, "start");
   check(p.errors.length === 0, "Start ohne Fehler " + p.errors.join("|"));
   await ctx.close();

@@ -400,3 +400,4 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
 .goal ul.checks { list-style: none; padding: 0; margin: 6px 0 0; }
 .goal ul.checks li { padding: 3px 0; }
 .goal ul.checks li.done { color: var(--ok); }
+#ver { position: fixed; right: 8px; bottom: 6px; z-index: 6; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 0, 0, .28); color: #fff; pointer-events: none; }

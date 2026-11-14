@@ -113,12 +113,18 @@
     el.innerHTML = Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 37) % 100}%;animation-duration:${9 + (i * 7) % 9}s;animation-delay:${-((i * 5) % 14)}s;font-size:${10 + (i * 3) % 12}px;opacity:${0.45 + ((i * 11) % 5) / 10}">❄</i>`).join("");
     document.body.appendChild(el);
   }
+  function showVersion() {
+    let el = document.getElementById("ver");
+    if (!el) { el = document.createElement("div"); el.id = "ver"; document.body.appendChild(el); }
+    el.textContent = "Version " + ((window.CAPY_VERSION && window.CAPY_VERSION.n) || "?");
+  }
   function applyTheme() {
     const h = new Date().getHours();
     const dark = S.set.theme === "dunkel" || (S.set.theme === "auto" && (h >= 19 || h < 7));
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     document.documentElement.dataset.season = S.set.season;
     snowOverlay();
+    showVersion();
   }
 
   // ---------- Navigation ----------
