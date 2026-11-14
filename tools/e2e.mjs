@@ -19,7 +19,7 @@ let fails = 0;
 const check = (c, m) => { if (!c) { fails++; console.log("FAIL", m); } };
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1180, height: 820 }, deviceScaleFactor: shots ? 2 : 1, serviceWorkers: "block" });
-await ctx.addInitScript(() => { window.__EMMA_TEST = Object.assign({ noSW: true, roundLen: 3, noFocus: true }, JSON.parse(sessionStorage.getItem("emmaTest") || "{}")); });
+await ctx.addInitScript(() => { window.__EMMA_TEST = Object.assign({ noSW: true, roundLen: 3, noFocus: true, fach: "mathe" }, JSON.parse(sessionStorage.getItem("emmaTest") || "{}")); });
 const p = await ctx.newPage();
 const errors = [];
 p.on("pageerror", (e) => errors.push(String(e)));
@@ -59,7 +59,7 @@ const solveIn = (sel, idx) => p.evaluate(([sel, idx]) => {
 }, [sel, idx]);
 
 // 1) Jede Aufgaben-Art: über jedes Thema und jede Fertigkeit eine richtige Antwort
-const gens = await p.evaluate(() => window.Aufgaben.TOPICS.flatMap((t) => t.gens.map((g) => [t.id, g])));
+const gens = await p.evaluate(() => window.Aufgaben.TOPICS.filter((t) => !t.fach).flatMap((t) => t.gens.map((g) => [t.id, g])));
 const kindsSeen = new Set();
 for (const [topic, gen] of gens) {
   await p.evaluate(() => window.__EMMA.go("home"));

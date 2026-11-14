@@ -1,8 +1,11 @@
-# Capy & Mathe
+# Capy & Schule (Mathe und Naturwissenschaften)
 
 Lern-App fürs iPad für Emmas erste Mathe-Klassenarbeit in Klasse 5 (Gymnasium BW, Kapitel I „Die natürlichen Zahlen“). Mochi, das Capybara, übt mit ihr.
 
-## Was die App kann
+## Naturwissenschaften (Klasse 5, Erde im Weltall)
+Oben auf der Startseite wählt man das Fach. Themen nach den Heftseiten und Arbeitsblättern: Sonnensystem und Planeten (Merksatz, innere und äußere Planeten, Steckbriefe), Sterne, Planeten und Monde, ein Tag auf der ISS, Gradnetz der Erde (mit Zeichnungen zum Beschriften). Fehlerkiste und Probearbeit mit Notenschätzung gibt es auch hier (`public/nw.js`, Tests `tools/test-nw.mjs` und `tools/e2e-nw.mjs`).
+
+## Mathe
 - **Alle Themen vom Lernzettel einzeln üben:**
   - Zahlenstrahl
   - Stellentafel und Zahlwörter
