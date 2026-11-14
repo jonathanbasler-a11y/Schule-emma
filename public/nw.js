@@ -230,7 +230,24 @@
     const [s, ans, box] = r.pick(LUECKEN.slice(0, 8));
     return textTask({ q: `Ergänze: <span class="nwsatz">${s.replace("___", '<span class="kbx">?</span>')}</span>${lvl === 1 ? `<br><small>Wortkasten: ${box}</small>` : ""}`, accept: ans, hints: [`Wortkasten: ${box}`, "Das Wort beginnt mit " + ans[0][0].toUpperCase() + "."], solution: ans[0] });
   });
-  gen("nw.gradnetz.zahl", "grad", "Gradnetz: Zahlen", (r) => numTask({ q: "Wie viele Längenkreise gibt es insgesamt?", ans: 360, hints: ["Der Kreis hat 360 Grad, jeder Grad hat einen Längenkreis.", "Die Zahl steht auf deinem Arbeitsblatt."], solution: "360 Längenkreise" }));
+  // Feste Fragen (Frage, Antwort, Hinweis, Lösung) und Rechenfragen mit wechselnden Zahlen
+  const ZAHLEN = [
+    ["Wie viele Längenkreise gibt es insgesamt?", 360, "Der Kreis hat 360 Grad, jeder Grad hat einen Längenkreis.", "360 Längenkreise"],
+    ["Auf welchem Breitengrad liegt der <b>Äquator</b>?", 0, "Der Äquator ist der Anfang der Zählung der Breitengrade.", "0 Grad"],
+    ["Auf welchem Längengrad liegt der <b>Nullmeridian</b> (Greenwich)?", 0, "Von hier aus zählt man nach Osten und nach Westen.", "0 Grad"],
+    ["Auf welchem Breitengrad liegt der <b>Nordpol</b>? (Gib nur die Zahl ein.)", 90, "Vom Äquator bis zum Pol ist es ein Viertelkreis.", "90 Grad nördlicher Breite"],
+    ["Wie viele Breitengrade sind es vom <b>Äquator bis zum Südpol</b>?", 90, "Der Südpol liegt genauso weit vom Äquator weg wie der Nordpol.", "90 Grad"],
+    ["Vom Nullmeridian zählt man nach Osten bis 180 Grad. Bis wie viel Grad zählt man nach <b>Westen</b>?", 180, "Zusammen müssen es 360 Grad sein.", "180 Grad"],
+    ["Die Erde dreht sich in 24 Stunden einmal ganz herum (360 Grad). Um wie viele Grad dreht sie sich in <b>einer Stunde</b>?", 15, "360 : 24", "360 : 24 = 15 Grad"],
+  ];
+  gen("nw.gradnetz.zahl", "grad", "Gradnetz: Zahlen", (r, lvl) => {
+    const rechne = r.chance(lvl === 1 ? 0.35 : 0.5);
+    if (!rechne) { const [q, ans, hint, sol] = r.pick(ZAHLEN); return numTask({ q, ans, hints: [hint, "Denk an deine Blätter zum Gradnetz der Erde."], solution: sol }); }
+    const k = r.int(1, 8) * 10, v = lvl === 1 ? 0 : r.int(0, 2);
+    if (v === 0) return numTask({ q: `Du startest am Äquator und gehst ${k} Grad nach Norden. Auf welchem Breitengrad bist du?`, ans: k, hints: ["Der Äquator ist 0 Grad.", `0 + ${k}`], solution: `${k} Grad nördlicher Breite` });
+    if (v === 1) return numTask({ q: `Ein Schiff liegt auf ${k} Grad nördlicher Breite. Wie viele Grad sind es noch bis zum <b>Nordpol</b>?`, ans: 90 - k, hints: ["Der Nordpol liegt bei 90 Grad.", `90 − ${k}`], solution: `90 − ${k} = ${90 - k} Grad` });
+    return numTask({ q: `Zwei Längenkreise liegen ${k} Grad auseinander. Wie viele Grad sind es auf der <b>anderen Seite</b> der Erde um den Kreis herum?`, ans: 360 - k, hints: ["Der ganze Kreis hat 360 Grad.", `360 − ${k}`], solution: `360 − ${k} = ${360 - k} Grad` });
+  });
 
   // ---------- Themen ----------
   const NWT = [

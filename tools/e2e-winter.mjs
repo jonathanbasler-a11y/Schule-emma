@@ -53,11 +53,20 @@ const S = (p) => p.evaluate(() => JSON.parse(JSON.stringify(window.__EMMA.S)));
   await p.click('[data-act="cozy"]');
   await p.waitForSelector(".cozy");
   const nOut = await p.locator('.cozy .pick[data-act="wear"]').count(), nLock = await p.locator(".cozy .pick.lock").count();
-  check(nOut >= 40, `Outfits gleich zum Anfang frei: ${nOut} (gesperrt: ${nLock})`);
-  check(await p.locator('.cozy .pick[data-act="scene"]').count() >= 8, "viele Orte frei");
+  check(nOut >= 8 && nOut <= 16 && nLock >= 35, `Nur ein Startsatz ist frei: ${nOut} frei, ${nLock} gesperrt`);
+  check(await p.locator('.cozy .pick[data-act="scene"]').count() >= 3, "ein paar Orte frei");
   const heads = (await p.locator(".cozy h2.sec").allTextContents()).join("|");
   check(/Mützen/.test(heads) && /Schmuck/.test(heads) && /Kleidung/.test(heads) && /Freunde/.test(heads), "Bereiche: Mützen, Schmuck, Kleidung, Freunde …");
   await shot(p, "cozy", true);
+  // gesperrtes Teil
+  const locked = await p.evaluate(() => window.Capy.OUTFITS.find((o) => o.xp > 0).id);
+  await p.click(`.cozy .pick[data-v="${locked}"]`, { force: true });
+  check(!(await S(p)).wear.includes(locked) && await p.locator(".toast").count() >= 1, "Gesperrtes Teil bleibt aus, Mochi erklärt warum");
+  // freischalten durch Punkte
+  await p.evaluate(() => { window.__EMMA.S.xp = 5000; window.__EMMA.save(); window.__EMMA.render(); });
+  check(await p.locator('.cozy .pick[data-act="locked"]').count() === 0, "mit 5000 Punkten ist alles frei");
+  await p.click(`.cozy .pick[data-v="${locked}"]`);
+  check((await S(p)).wear.includes(locked), "freigeschaltetes Teil lässt sich anziehen");
   // zwei Mützen: die zweite ersetzt die erste
   await p.click('.cozy .pick[data-v="krone"]');
   await p.click('.cozy .pick[data-v="elfenhut"]');
@@ -71,15 +80,6 @@ const S = (p) => p.evaluate(() => JSON.parse(JSON.stringify(window.__EMMA.S)));
   check(w.includes("schneemann") && w.includes("pinguin"), "mehrere Freunde gleichzeitig");
   check(await p.locator(".cozy .preview svg.mochi").count() === 1, "Vorschau zeigt Mochi");
   await shot(p, "outfit");
-  // gesperrtes Teil
-  const locked = await p.evaluate(() => window.Capy.OUTFITS.find((o) => o.xp > 0).id);
-  await p.click(`.cozy .pick[data-v="${locked}"]`, { force: true });
-  check(!(await S(p)).wear.includes(locked) && await p.locator(".toast").count() >= 1, "Gesperrtes Teil bleibt aus, Mochi erklärt warum");
-  // freischalten durch Punkte
-  await p.evaluate(() => { window.__EMMA.S.xp = 1000; window.__EMMA.save(); window.__EMMA.render(); });
-  check(await p.locator('.cozy .pick[data-act="locked"]').count() === 0, "mit 1000 Punkten ist alles frei");
-  await p.click(`.cozy .pick[data-v="${locked}"]`);
-  check((await S(p)).wear.includes(locked), "freigeschaltetes Teil lässt sich anziehen");
   // alles ausziehen, Überraschung
   await p.click('[data-act="nackt"]');
   check((await S(p)).wear.length === 0, "Alles ausziehen");

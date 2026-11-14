@@ -93,6 +93,19 @@
   const SLOT_OF = Object.assign({}, ...Object.entries(OLD).map(([k, [s]]) => ({ [k]: s })), ...Object.entries(EXTRA).map(([k, v]) => ({ [k]: v.slot })));
   C.OUTFITS.forEach((o) => { if (OLD[o.id]) o.xp = OLD[o.id][1]; o.slot = SLOT_OF[o.id]; });
   for (const id of Object.keys(X)) C.OUTFITS.push({ id, name: NAMES[id], xp: XP[id], slot: EXTRA[id].slot });
+  // Freischalten nach und nach: nur ein kleiner Startsatz (ein Teil je Bereich) ist gleich frei, der Rest verteilt sich
+  // gleichmäßig bis 1450 Punkte (ein Teil alle ca. 30 Punkte; eine Aufgabe = 10 Punkte). So bleibt immer etwas zum Freuen.
+  const START = ["bommel", "herzbrille", "schalstreifen", "perlen", "kopfhoerer", "winterjacke", "kakao", "rucksack", "schneemann"];
+  {
+    const rest = C.OUTFITS.filter((o) => !START.includes(o.id));
+    const bySlot = {}; rest.forEach((o) => { (bySlot[o.slot] = bySlot[o.slot] || []).push(o); });
+    const order = [];
+    for (let i = 0; order.length < rest.length; i++) for (const sl of Object.keys(bySlot)) if (bySlot[sl][i]) order.push(bySlot[sl][i]);
+    const late = (o) => (XP[o.id] || 0) > 0 || o.id === "sternenfluegel"; // Besonderes kommt zuletzt
+    order.sort((a, b) => late(a) - late(b));
+    order.forEach((o, i) => { o.xp = 30 + Math.round((i * (1450 - 30)) / (order.length - 1) / 10) * 10; });
+    C.OUTFITS.forEach((o) => { if (START.includes(o.id)) o.xp = 0; });
+  }
   C.EXTRA = EXTRA;
   C.SLOT_OF = SLOT_OF;
   C.SLOTS = [["hut", "Mützen & Hüte"], ["gesicht", "Gesicht"], ["hals", "Schals & Halstücher"], ["schmuck", "Schmuck"], ["ohr", "Ohren"], ["koerper", "Kleidung"], ["hand", "In der Hand"], ["ruecken", "Auf dem Rücken"], ["begleiter", "Freunde"]];
@@ -119,11 +132,11 @@
     kekshaus: (W, H) => `<rect width="${W}" height="${H}" fill="#f6e3c8"/><rect y="170" width="${W}" height="50" fill="#e8f0fa"/><rect x="120" y="90" width="160" height="84" fill="#b8723a"/><path d="M104 96 L200 34 L296 96 Z" fill="#8a5230"/><path d="M104 96 Q124 108 144 96 Q164 110 184 96 Q204 110 224 96 Q244 110 264 96 Q284 108 296 96" fill="#fff"/><rect x="180" y="124" width="40" height="50" rx="20" fill="#7a3a22"/>${[[140, 120], [250, 120]].map(([x, y]) => `<rect x="${x}" y="${y}" width="26" height="26" rx="5" fill="#ffd166"/>`).join("")}${[[130, 108], [170, 112], [236, 110], [270, 108]].map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="5" fill="${["#d63a3a", "#3f8f5a", "#3a8fd6", "#d63a3a"][i]}"/>`).join("")}${[[90, 180], [320, 186]].map(([x, y]) => `<path d="M${x} ${y} l-10 -26 h20 Z" fill="#fff" stroke="#c5d6e6"/><circle cx="${x}" cy="${y - 28}" r="5" fill="#d63a3a"/>`).join("")}`,
   };
   const SC_NAMES = { onsenschnee: "Onsen im Schnee", winterwald: "Winterwald", huette: "Berghütte mit Kamin", eissee: "Eissee", markt: "Weihnachtsmarkt", iglu: "Iglu", nordlicht: "Nordlicht", tanne: "Weihnachtsbaum", kekshaus: "Lebkuchenhaus" };
-  const SC_XP = { onsenschnee: 0, winterwald: 0, huette: 0, eissee: 0, markt: 0, iglu: 0, nordlicht: 60, tanne: 0, kekshaus: 120 };
+  const SC_XP = { onsenschnee: 0, winterwald: 0, huette: 0, eissee: 80, markt: 200, iglu: 350, tanne: 550, nordlicht: 800, kekshaus: 1100 };
   C.XSCENES = SC;
   // neue Winter-Orte vorne, die Herbst-Orte bleiben dahinter
   const winter = Object.keys(SC).map((id) => ({ id, name: SC_NAMES[id], xp: SC_XP[id], winter: true }));
   C.SCENES.unshift(...winter);
-  const HERBST_XP = { onsen: 0, wald: 0, lese: 40, regen: 80, tee: 120, sterne: 200 };
+  const HERBST_XP = { onsen: 0, wald: 120, lese: 260, regen: 450, tee: 650, sterne: 950 };
   C.SCENES.forEach((s) => { if (!s.winter && HERBST_XP[s.id] != null) s.xp = HERBST_XP[s.id]; });
 })(typeof self !== "undefined" ? self : this);

@@ -277,12 +277,20 @@
     for (; i < pool.length - 1; i++) { r -= w[i]; if (r <= 0) break; }
     return pool[i];
   }
+  const seenQ = []; // zuletzt gestellte Fragen dieser Sitzung
   function nextTask() {
     const id = TEST.forceGen && P.mode !== "box" ? TEST.forceGen : pickGen();
     let lvl = gs(id).lvl, seed = rndSeed();
     if (P.mode === "box") { const b = S.box.find((x) => x.gen === id); if (b) { lvl = b.lvl; if (!b.tried) { seed = b.seed; b.tried = true; } } }
     P.recent = [id].concat(P.recent).slice(0, 3);
-    P.cur = { t: A.make(id, lvl, seed), tries: 0, help: 0, done: false };
+    // dieselbe Frage nicht noch einmal stellen (auch nicht in der nächsten Runde): neue Zufallszahl probieren, bis eine neue Frage kommt
+    let t = A.make(id, lvl, seed);
+    if (P.mode !== "box") {
+      const key = (x) => x.q + "|" + x.answer;
+      for (let n = 0; n < 15 && seenQ.includes(key(t)); n++) t = A.make(id, lvl, rndSeed());
+      seenQ.unshift(key(t)); if (seenQ.length > 60) seenQ.length = 60;
+    }
+    P.cur = { t, tries: 0, help: 0, done: false };
   }
   function addToBox(t) {
     let b = S.box.find((x) => x.gen === t.gen);

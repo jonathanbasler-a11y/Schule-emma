@@ -175,6 +175,24 @@ for (const [name, size] of [["iPad hoch", { width: 820, height: 1180 }], ["Handy
   await ctx.close();
 }
 
+// 6) Keine Wiederholungen: in einer Runde von 8 Aufgaben kommt keine Frage zweimal (Emmas Rückmeldung zu „Gradnetz: Zahlen“)
+{
+  const { ctx, p } = await open({ width: 1180, height: 820 }, { roundLen: 8 });
+  await p.click('[data-act="topic"][data-v="grad"]');
+  await p.click('[data-act="startGen"][data-v="nw.gradnetz.zahl"]');
+  const qs = [];
+  for (let i = 0; i < 8; i++) {
+    await p.waitForSelector(".task");
+    qs.push(await p.evaluate(() => window.__EMMA.P.cur.t.q));
+    await solveIn(p, ".task");
+    await p.click('[data-act="check"]');
+    await p.waitForSelector(".fb.ok");
+    await p.click('[data-act="next"]');
+  }
+  check(new Set(qs).size === 8, `Gradnetz-Zahlen: 8 verschiedene Fragen in einer Runde (${new Set(qs).size} verschieden)`);
+  await ctx.close();
+}
+
 await b.close(); srv.close();
 console.log(fails ? `${fails} Fehler` : "alle Naturwissenschaften-Tests ok");
 process.exit(fails ? 1 : 0);
