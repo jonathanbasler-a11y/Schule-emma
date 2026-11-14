@@ -146,6 +146,12 @@
     const d = daysLeft(S.fach), ARB = S.fach === "nw" ? "NW-Arbeit" : "Mathe-Arbeit";
     const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur ${ARB}` : d === 1 ? "<b>Morgen</b> ist die ${ARB} – du schaffst das!" : d === 0 ? "<b>Heute</b> ist die ${ARB}. Viel Glück! 🍀" : "Die Arbeit ist geschafft – üben hält dich fit.";
     const boxN = S.box.length;
+    // Mein Weg zur Eins: bester Stand der Probearbeiten im Fach, dazu ein kleiner Tagesplan
+    const exF = S.exams.filter((e) => (e.fach || "mathe") === S.fach), best = exF.length ? exF.reduce((a, e) => (e.pct > a.pct ? e : a)) : null, key1 = S.set.key[0], todayN = S.days[dayKey()] || 0;
+    const examToday = exF.some((e) => dayKey(new Date(e.d)) === dayKey());
+    const goal = `<section class="card goal"><h2>🎯 Mein Weg zur Eins</h2><div class="gbar" role="img" aria-label="${best ? best.pct : 0} von ${key1} Prozent"><i style="width:${Math.min(100, ((best ? best.pct : 0) / key1) * 100)}%"></i></div>
+      <p>${best ? `Beste Probearbeit: <b>${String(best.pct).replace(".", ",")} %</b> (Note ${esc(best.txt)}). Für die Eins brauchst du ab <b>${key1} %</b>.${best.pct >= key1 ? " Das hast du schon geschafft, jetzt nur noch halten! 🌟" : " Du kommst jeden Tag näher."}` : `Schreibe eine Probearbeit, dann siehst du, wo du stehst. Für die Eins brauchst du ab <b>${key1} %</b>.`}</p>
+      <ul class="plain checks"><li class="${todayN >= 10 ? "done" : ""}">${todayN >= 10 ? "✅" : "⬜"} Heute 10 Aufgaben üben (${todayN})</li><li class="${boxN ? "" : "done"}">${boxN ? "⬜ Fehlerkiste leeren (" + boxN + ")" : "✅ Fehlerkiste ist leer"}</li><li class="${examToday ? "done" : ""}">${examToday ? "✅" : "⬜"} Eine Probearbeit schreiben</li></ul></section>`;
     const running = S.exam ? `<button class="big-act exam running" data-act="examResume"><span class="ico">⏱️</span><span><b>Probearbeit fortsetzen</b><small>Du hast eine angefangene Probearbeit.</small></span></button>` : "";
     return topbar("") + `<main class="home">
       <section class="hero">${C.scene(S.scene)}
@@ -154,6 +160,7 @@
         </div>
         <div class="countdown">${cd}</div>
       </section>
+      ${S.fach === "nw" ? goal : ""}
       <nav class="fachtabs" aria-label="Fach wählen"><button class="${S.fach === 'nw' ? 'on' : ''}" data-act="fach" data-v="nw">🪐 Naturwissenschaften</button><button class="${S.fach === 'mathe' ? 'on' : ''}" data-act="fach" data-v="mathe">🔢 Mathe</button></nav>
       <section class="acts">
         ${running}

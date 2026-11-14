@@ -395,3 +395,8 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
 .pick .mini.m { background: linear-gradient(180deg, #e4eef9, #f6faff); border-radius: 12px; padding: 4px 0; }
 :root[data-season="winter"][data-theme="dark"] .pick .mini.m { background: linear-gradient(180deg, #2c3860, #232d50); }
 .cozy .btns.center { justify-content: center; margin: 8px 0 4px; }
+.goal .gbar { height: 14px; border-radius: 99px; background: var(--line); overflow: hidden; margin: 8px 0; }
+.goal .gbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--sage), var(--ok)); border-radius: 99px; transition: width .6s; }
+.goal ul.checks { list-style: none; padding: 0; margin: 6px 0 0; }
+.goal ul.checks li { padding: 3px 0; }
+.goal ul.checks li.done { color: var(--ok); }

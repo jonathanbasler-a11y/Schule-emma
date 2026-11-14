@@ -55,6 +55,7 @@ const solveIn = (p, sel, idx, wrong) => p.evaluate(([sel, idx, wrong]) => {
   check(/NW-Arbeit/.test(await p.textContent(".countdown")), "Countdown nennt die NW-Arbeit: " + (await p.textContent(".countdown")).trim());
   const d = await p.evaluate(() => window.__EMMA.S.set.dateNw);
   check(d === "2026-11-23", "Datum der Arbeit 23.11.");
+  check(await p.locator(".goal").count() === 1 && /Weg zur Eins/.test(await p.textContent(".goal")) && /ab <b>/.test(await p.innerHTML(".goal")) , "Karte „Mein Weg zur Eins“ im Fach");
   await shot(p, "start");
   await p.click('.fachtabs button[data-v="mathe"]');
   check(await p.locator(".tcard").count() === 13 && !/NW-Arbeit/.test(await p.textContent(".countdown")), "Mathe: 13 Themen, kein NW-Countdown");
@@ -137,6 +138,7 @@ const solveIn = (p, sel, idx, wrong) => p.evaluate(([sel, idx, wrong]) => {
   await shot(p, "note");
   // zweite Probearbeit leer abgegeben
   await p.click('[data-act="home"]');
+  check(/100 %/.test(await p.textContent(".goal")) && /geschafft/.test(await p.textContent(".goal")) && /✅ Eine Probearbeit/.test(await p.textContent(".goal")), "Eins-Karte zeigt die beste Probearbeit und den erledigten Tagespunkt");
   await p.click('[data-act="examIntro"]'); await p.click('[data-act="examStart"]');
   await p.waitForSelector(".etask");
   await p.click('[data-act="examSubmit"]');
