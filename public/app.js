@@ -14,9 +14,9 @@
   // ---------- Spielstand ----------
   function fresh() {
     return {
-      v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: [], scene: "onsen",
-      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: {},
-      set: { date: "2026-11-09", dateNw: "2026-11-23", examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
+      v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: ["bommel", "schalstreifen"], scene: "onsenschnee",
+      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true },
+      set: { date: "2026-11-09", dateNw: "2026-11-23", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
   function load() {
@@ -34,6 +34,12 @@
     o.box = o.box.filter((b) => b && A.G[b.gen]);
     if (o.exam && (!o.exam.seed || !o.exam.start)) o.exam = null;
     if (o.fach !== "mathe" && o.fach !== "nw") o.fach = "nw";
+    if (o.set.season !== "winter" && o.set.season !== "herbst") o.set.season = "winter";
+    o.set.snow = o.set.snow !== false;
+    o.wear = o.wear.filter((w) => C.OUTFITS.some((x) => x.id === w));
+    // Winter-Update: einmalig der Onsen im Schnee und eine Wintermütze mit Schal für Mochi
+    if (!o.flags.winter1) { o.flags.winter1 = true; o.scene = "onsenschnee"; if (!o.wear.length) o.wear = ["bommel", "schalstreifen"]; }
+    if (!C.SCENES.some((x) => x.id === o.scene)) o.scene = "onsenschnee";
     if (typeof o.set.dateNw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateNw)) o.set.dateNw = fresh().set.dateNw;
     if (o.exam && o.exam.fach !== "nw") o.exam.fach = "mathe";
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
@@ -97,10 +103,28 @@
   const sound = (k) => { if (S.sound) try { C.sfx[k](); } catch (e) { /* kein Ton */ } };
 
   // ---------- Theme ----------
+  const CUR = () => (S.set.season === "herbst" ? { i: "🍂", n: "Blätter" } : { i: "❄️", n: "Schneeflocken" });
+  function snowOverlay() {
+    let el = document.getElementById("snow");
+    const on = S.set.season === "winter" && S.set.snow;
+    if (!on) { if (el) el.remove(); return; }
+    if (el) return;
+    el = document.createElement("div"); el.id = "snow"; el.setAttribute("aria-hidden", "true");
+    el.innerHTML = Array.from({ length: 26 }, (_, i) => `<i style="left:${(i * 37) % 100}%;animation-duration:${9 + (i * 7) % 9}s;animation-delay:${-((i * 5) % 14)}s;font-size:${10 + (i * 3) % 12}px;opacity:${0.45 + ((i * 11) % 5) / 10}">❄</i>`).join("");
+    document.body.appendChild(el);
+  }
+  function showVersion() {
+    let el = document.getElementById("ver");
+    if (!el) { el = document.createElement("div"); el.id = "ver"; document.body.appendChild(el); }
+    el.textContent = "Version " + ((window.CAPY_VERSION && window.CAPY_VERSION.n) || "?");
+  }
   function applyTheme() {
     const h = new Date().getHours();
     const dark = S.set.theme === "dunkel" || (S.set.theme === "auto" && (h >= 19 || h < 7));
     document.documentElement.dataset.theme = dark ? "dark" : "light";
+    document.documentElement.dataset.season = S.set.season;
+    snowOverlay();
+    showVersion();
   }
 
   // ---------- Navigation ----------
@@ -114,7 +138,7 @@
       ${title ? `<h1>${title}</h1>` : ""}
       <div class="topr">
         <span class="chip" title="Tage am Stück">🔥 ${S.streak || 0}</span>
-        <span class="chip" title="Blätter (Übungspunkte)">🍂 ${S.xp}</span>
+        <span class="chip" title="${CUR().n} (Übungspunkte)">${CUR().i} ${S.xp}</span>
         <button class="iconbtn music ${C.Lofi.on ? "on" : ""}" data-act="music" aria-label="Musik an oder aus">${C.Lofi.on ? "♫" : "♪"}</button>
       </div></header>`;
   }
@@ -128,6 +152,12 @@
     const d = daysLeft(S.fach), ARB = S.fach === "nw" ? "NW-Arbeit" : "Mathe-Arbeit";
     const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur ${ARB}` : d === 1 ? "<b>Morgen</b> ist die ${ARB} – du schaffst das!" : d === 0 ? "<b>Heute</b> ist die ${ARB}. Viel Glück! 🍀" : "Die Arbeit ist geschafft – üben hält dich fit.";
     const boxN = S.box.length;
+    // Mein Weg zur Eins: bester Stand der Probearbeiten im Fach, dazu ein kleiner Tagesplan
+    const exF = S.exams.filter((e) => (e.fach || "mathe") === S.fach), best = exF.length ? exF.reduce((a, e) => (e.pct > a.pct ? e : a)) : null, key1 = S.set.key[0], todayN = S.days[dayKey()] || 0;
+    const examToday = exF.some((e) => dayKey(new Date(e.d)) === dayKey());
+    const goal = `<section class="card goal"><h2>🎯 Mein Weg zur Eins</h2><div class="gbar" role="img" aria-label="${best ? best.pct : 0} von ${key1} Prozent"><i style="width:${Math.min(100, ((best ? best.pct : 0) / key1) * 100)}%"></i></div>
+      <p>${best ? `Beste Probearbeit: <b>${String(best.pct).replace(".", ",")} %</b> (Note ${esc(best.txt)}). Für die Eins brauchst du ab <b>${key1} %</b>.${best.pct >= key1 ? " Das hast du schon geschafft, jetzt nur noch halten! 🌟" : " Du kommst jeden Tag näher."}` : `Schreibe eine Probearbeit, dann siehst du, wo du stehst. Für die Eins brauchst du ab <b>${key1} %</b>.`}</p>
+      <ul class="plain checks"><li class="${todayN >= 10 ? "done" : ""}">${todayN >= 10 ? "✅" : "⬜"} Heute 10 Aufgaben üben (${todayN})</li><li class="${boxN ? "" : "done"}">${boxN ? "⬜ Fehlerkiste leeren (" + boxN + ")" : "✅ Fehlerkiste ist leer"}</li><li class="${examToday ? "done" : ""}">${examToday ? "✅" : "⬜"} Eine Probearbeit schreiben</li></ul></section>`;
     const running = S.exam ? `<button class="big-act exam running" data-act="examResume"><span class="ico">⏱️</span><span><b>Probearbeit fortsetzen</b><small>Du hast eine angefangene Probearbeit.</small></span></button>` : "";
     return topbar("") + `<main class="home">
       <section class="hero">${C.scene(S.scene)}
@@ -136,6 +166,7 @@
         </div>
         <div class="countdown">${cd}</div>
       </section>
+      ${S.fach === "nw" ? goal : ""}
       <nav class="fachtabs" aria-label="Fach wählen"><button class="${S.fach === 'nw' ? 'on' : ''}" data-act="fach" data-v="nw">🪐 Naturwissenschaften</button><button class="${S.fach === 'mathe' ? 'on' : ''}" data-act="fach" data-v="mathe">🔢 Mathe</button></nav>
       <section class="acts">
         ${running}
@@ -303,7 +334,7 @@
     return topbar("Runde geschafft", "home") + `<main class="end">
       <div class="card center">${C.mochi(mood, S.wear, 170)}
         <h2>${ok} von ${n} auf Anhieb richtig</h2>
-        <p class="xp">+${P.xp} 🍂</p>
+        <p class="xp">+${P.xp} ${CUR().i}</p>
         <p>${ok === n ? "Wow, alles richtig! Mochi springt vor Freude ins Wasser." : ok / n >= 0.5 ? "Gut gemacht! Die Fehler wandern in die Fehlerkiste – da üben wir sie nochmal." : "Das war eine knifflige Runde. Schau dir die Fehlerkiste an – so lernst du am meisten."}</p>
         <p class="quote">„${esc(C.pick(C.MUT))}“</p>
         <div class="btns"><button class="btn soft" data-act="home">Zur Übersicht</button>${S.box.length ? `<button class="btn soft" data-act="box">📦 Fehlerkiste (${S.box.length})</button>` : ""}<button class="btn main" data-act="again">Noch eine Runde</button></div>
@@ -563,13 +594,20 @@
       <div class="stickers">${STICKERS.map((s) => { const has = S.stickers.includes(s.id); return `<div class="sticker ${has ? "has" : ""}"><span class="sicon">${has ? s.icon : "?"}</span><span class="sname">${has ? s.name : esc(s.name)}</span></div>`; }).join("")}</div></main>`;
   }
   function vCozy() {
+    const free = C.OUTFITS.filter((o) => S.xp >= o.xp).length, freeS = C.SCENES.filter((o) => S.xp >= o.xp).length;
+    const pick = (o, kind) => {
+      const ok = S.xp >= o.xp, sel = kind === "scene" ? S.scene === o.id : S.wear.includes(o.id);
+      const mini = kind === "scene" ? `<span class="mini s">${C.scene(o.id)}</span>` : `<span class="mini m">${C.mochi("calm", [o.id], 64)}</span>`;
+      return `<button class="pick ${sel ? "sel" : ""} ${ok ? "" : "lock"}" data-act="${ok ? (kind === "scene" ? "scene" : "wear") : "locked"}" data-v="${o.id}" aria-pressed="${sel}" ${ok ? "" : 'aria-disabled="true"'}>${mini}<span class="pn">${esc(o.name)}</span>${ok ? "" : `<small>🔒 ab ${o.xp} ${CUR().i}</small>`}</button>`;
+    };
     return topbar("🛋️ Orte & Outfits", "home") + `<main class="cozy">
-      <div class="card preview">${C.scene(S.scene)}<div class="heroin">${C.mochi("happy", S.wear, 140)}</div></div>
+      <div class="card preview">${C.scene(S.scene)}<div class="heroin">${C.mochi("happy", S.wear, 150)}</div></div>
+      <p class="small center">${free} von ${C.OUTFITS.length} Sachen und ${freeS} von ${C.SCENES.length} Orten sind freigeschaltet. Tippe etwas an, Mochi probiert es sofort an.</p>
+      <div class="btns center"><button class="btn soft" data-act="nackt">Alles ausziehen</button><button class="btn soft" data-act="zufall">🎲 Überrasch mich</button></div>
       <h2 class="sec">Gemütliche Orte</h2>
-      <div class="grid3">${C.SCENES.map((s) => { const ok = S.xp >= s.xp; return `<button class="pick ${S.scene === s.id ? "sel" : ""}" data-act="${ok ? "scene" : "locked"}" data-v="${s.id}" ${ok ? "" : 'aria-disabled="true"'}><span class="mini">${C.scene(s.id)}</span><span>${s.name}</span>${ok ? "" : `<small>🔒 ab ${s.xp} 🍂</small>`}</button>`; }).join("")}</div>
-      <h2 class="sec">Mochis Outfits</h2>
-      <div class="grid3">${C.OUTFITS.map((o) => { const ok = S.xp >= o.xp; return `<button class="pick ${S.wear.includes(o.id) ? "sel" : ""}" data-act="${ok ? "wear" : "locked"}" data-v="${o.id}"><span class="mini m">${C.mochi("calm", [o.id], 80)}</span><span>${o.name}</span>${ok ? "" : `<small>🔒 ab ${o.xp} 🍂</small>`}</button>`; }).join("")}</div>
-      <p class="small center">🍂 Blätter bekommst du für jede richtige Aufgabe und für Probearbeiten.</p></main>`;
+      <div class="grid3">${C.SCENES.map((o) => pick(o, "scene")).join("")}</div>
+      ${C.SLOTS.map(([sl, nm]) => `<h2 class="sec">${nm}</h2><div class="grid3">${C.OUTFITS.filter((o) => o.slot === sl).map((o) => pick(o, "wear")).join("")}</div>`).join("")}
+      <p class="small center">${CUR().i} ${CUR().n} bekommst du für jede richtige Aufgabe und für Probearbeiten.</p></main>`;
   }
 
   // ---------- Einstellungen ----------
@@ -579,6 +617,8 @@
       <div class="card"><h2>Für dich</h2>
         <label class="row2">Tag der NW-Arbeit <input type="date" data-set="dateNw" value="${esc(S.set.dateNw)}"></label>
         <label class="row2">Tag der Mathe-Arbeit <input type="date" data-set="date" value="${esc(S.set.date)}"></label>
+        <label class="row2">Jahreszeit <select data-set="season"><option value="winter" ${S.set.season === "winter" ? "selected" : ""}>Winter</option><option value="herbst" ${S.set.season === "herbst" ? "selected" : ""}>Herbst</option></select></label>
+        <label class="row2">Schneefall im Hintergrund <input type="checkbox" data-set="snow" ${S.set.snow ? "checked" : ""}></label>
         <label class="row2">Musik-Lautstärke <input type="range" min="0" max="1" step="0.05" data-set="vol" value="${S.music.vol}"></label>
         <label class="row2">Klänge bei richtig/falsch <input type="checkbox" data-set="sound" ${S.sound ? "checked" : ""}></label>
         <label class="row2">Farben <select data-set="theme">${[["auto", "automatisch (abends dunkel)"], ["hell", "hell"], ["dunkel", "dunkel"]].map(([v, n]) => `<option value="${v}" ${S.set.theme === v ? "selected" : ""}>${n}</option>`).join("")}</select></label>
@@ -641,8 +681,10 @@
       case "cozy": go("cozy"); break;
       case "settings": go("settings"); break;
       case "scene": S.scene = v; save(); render(); break;
-      case "wear": S.wear = S.wear.includes(v) ? S.wear.filter((x) => x !== v) : S.wear.concat(v); save(); render(); break;
-      case "locked": toast("🔒 Sammle mehr 🍂 Blätter, um das freizuschalten."); break;
+      case "wear": if (C.OUTFITS.some((o) => o.id === v && S.xp >= o.xp)) { S.wear = C.toggleWear(S.wear, v); save(); render(); } break;
+      case "nackt": S.wear = []; save(); render(); break;
+      case "zufall": { const free = C.OUTFITS.filter((o) => S.xp >= o.xp); let w = []; for (const [sl] of C.SLOTS) { if (Math.random() < 0.45) { const c = free.filter((o) => o.slot === sl); if (c.length) w = C.toggleWear(w, c[Math.floor(Math.random() * c.length)].id); } } S.wear = w; save(); render(); break; }
+      case "locked": toast(`🔒 Sammle mehr ${CUR().i} ${CUR().n}, um das freizuschalten.`); break;
       case "music": toggleMusic(); break;
       case "reset": if (confirm("Wirklich alles löschen? Fortschritt, Sticker und Probearbeiten sind dann weg.")) { const keep = S.set; S = fresh(); S.set = keep; save(); go("home"); } break;
     }
@@ -683,6 +725,8 @@
       if (k === "dateNw") S.set.dateNw = x.value || S.set.dateNw;
       if (k === "examMin") S.set.examMin = Number(x.value);
       if (k === "theme") { S.set.theme = x.value; applyTheme(); }
+      if (k === "season") { S.set.season = x.value; applyTheme(); render(); }
+      if (k === "snow") { S.set.snow = x.checked; applyTheme(); }
       if (k === "sound") S.sound = x.checked;
       if (k === "vol") { S.music.vol = Number(x.value); C.Lofi.setVol(S.music.vol); }
       save();

@@ -23,6 +23,8 @@ jobs:
         run: node tools/test-aufgaben.mjs 300
       - name: Naturwissenschaften-Logik
         run: node tools/test-nw.mjs
+      - name: Garderobe und Orte
+        run: node tools/test-garderobe.mjs
       - name: Browser installieren
         run: |
           npm install --no-save playwright@1.63.0
@@ -31,6 +33,10 @@ jobs:
         run: node tools/e2e.mjs
       - name: Naturwissenschaften im Browser
         run: node tools/e2e-nw.mjs
+      - name: Winter-Design und Garderobe im Browser
+        run: node tools/e2e-winter.mjs
+      - name: Version und Cache
+        run: node tools/test-version.mjs
       - name: Offline
         run: node tools/test-offline.mjs
   deploy:

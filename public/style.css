@@ -365,3 +365,39 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
 .nwfig { width: 100%; max-width: 460px; height: auto; }
 .nwfig.globe { width: 300px; max-width: 100%; }
 .nwsatz { display: block; margin: 4px 0; font-size: 1.1rem; }
+
+/* ===== Cozy Winter: Schnee, Eis und Tannengrün ===== */
+:root[data-season="winter"] {
+  --bg: #eef4fb; --bg2: #e1ebf6; --card: #fbfdff; --ink: #2b3a4f; --muted: #657a92; --line: #cddbea;
+  --terra: #c2384e; --terra-soft: #f6dce1; --senf: #e0b24a; --senf-soft: #f8edc9; --sage: #4f8f78; --sage-soft: #d9ece3;
+  --plum: #7a6aa8; --ok: #3f8f6a; --ok-soft: #d9efe4; --bad: #c2384e; --bad-soft: #f8dde1;
+  --grid: #d9e5f1; --shadow: 0 8px 22px rgba(40, 70, 110, .15);
+}
+:root[data-season="winter"][data-theme="dark"] {
+  --bg: #141a2e; --bg2: #1b2342; --card: #212b4b; --ink: #eaf1fb; --muted: #a9b9d4; --line: #34416b;
+  --terra: #ff7d8d; --terra-soft: #3d2840; --senf: #f0c66a; --senf-soft: #3f3a2a; --sage: #7fc2a8; --sage-soft: #24403a;
+  --plum: #b9a8f0; --ok: #7fd1a6; --ok-soft: #234438; --bad: #ff8f9c; --bad-soft: #432636;
+  --grid: #2d3a62; --shadow: 0 8px 22px rgba(0, 0, 0, .4);
+}
+:root[data-season="winter"] body { background: linear-gradient(180deg, var(--bg) 0, var(--bg2) 100%) fixed; }
+:root[data-season="winter"] .card, :root[data-season="winter"] .tcard, :root[data-season="winter"] .big-act { border-radius: 24px; }
+:root[data-season="winter"] .top { background: color-mix(in srgb, var(--card) 86%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+:root[data-season="winter"] .hero { box-shadow: 0 10px 28px rgba(40, 70, 110, .22); }
+#snow { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 4; }
+#snow i { position: absolute; top: -24px; font-style: normal; color: #fff; text-shadow: 0 0 4px rgba(90, 130, 180, .8); animation: snowfall linear infinite; }
+@keyframes snowfall { from { transform: translate3d(0, -5vh, 0) rotate(0); } 50% { transform: translate3d(22px, 52vh, 0) rotate(90deg); } to { transform: translate3d(-8px, 108vh, 0) rotate(180deg); } }
+@keyframes flk { from { transform: translateY(-8px); } to { transform: translateY(12px); } }
+.scene .flk { animation: flk 5s linear infinite alternate; }
+@media (prefers-reduced-motion: reduce) { #snow { display: none; } .scene .flk { animation: none; } }
+.toast { z-index: 40; }
+.pick .pn { font-size: 15px; font-weight: 700; text-align: center; line-height: 1.2; }
+.pick.lock { opacity: .55; filter: grayscale(.4); }
+.pick .mini.m { background: linear-gradient(180deg, #e4eef9, #f6faff); border-radius: 12px; padding: 4px 0; }
+:root[data-season="winter"][data-theme="dark"] .pick .mini.m { background: linear-gradient(180deg, #2c3860, #232d50); }
+.cozy .btns.center { justify-content: center; margin: 8px 0 4px; }
+.goal .gbar { height: 14px; border-radius: 99px; background: var(--line); overflow: hidden; margin: 8px 0; }
+.goal .gbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--sage), var(--ok)); border-radius: 99px; transition: width .6s; }
+.goal ul.checks { list-style: none; padding: 0; margin: 6px 0 0; }
+.goal ul.checks li { padding: 3px 0; }
+.goal ul.checks li.done { color: var(--ok); }
+#ver { position: fixed; right: 8px; bottom: 6px; z-index: 6; font-size: 11px; padding: 2px 8px; border-radius: 10px; background: rgba(0, 0, 0, .28); color: #fff; pointer-events: none; }
