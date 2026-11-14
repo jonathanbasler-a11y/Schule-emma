@@ -5,6 +5,8 @@ Lern-App fürs iPad für Emmas erste Mathe-Klassenarbeit in Klasse 5 (Gymnasium 
 ## Cozy Winter
 Die App ist im Winter-Design (Schnee, Eisblau, Tannengrün, dazu Schneefall, der sich ausschalten lässt; in den Einstellungen gibt es auch das Herbst-Design). Mochi hat über 50 Teile: Mützen, Brillen, Schals, Schmuck, Pullover und Jacken, Dinge in der Hand, Flügel und kleine Freunde, die meisten gleich von Anfang an frei, pro Bereich ein Teil. Dazu 15 Orte (Onsen im Schnee, Winterwald, Berghütte, Eissee, Weihnachtsmarkt, Iglu, Nordlicht, Weihnachtsbaum, Lebkuchenhaus …). Code in `public/garderobe.js`, Tests `tools/test-garderobe.mjs` und `tools/e2e-winter.mjs`.
 
+Der Fortschritt geht nicht verloren: Er wird zweifach im Browser und zusätzlich in IndexedDB gespeichert (und beim Schließen noch einmal), ein beschädigter Stand wird aus der Kopie wiederhergestellt. In den Einstellungen gibt es „Sicherung speichern“ (Datei `capy-sicherung-Datum.json`) und „Sicherung laden“. Die Versionsanzeige oben zeigt „gesichert ✓“ oder wird amber, wenn die letzte Sicherungsdatei älter als 3 Tage ist; Antippen speichert eine Sicherung. Test: `tools/e2e-sicherung.mjs`.
+
 ## Naturwissenschaften (Klasse 5, Erde im Weltall)
 Oben auf der Startseite wählt man das Fach. Themen nach den Heftseiten und Arbeitsblättern: Sonnensystem und Planeten (Merksatz, innere und äußere Planeten, Steckbriefe), Sterne, Planeten und Monde, ein Tag auf der ISS, Gradnetz der Erde (mit Zeichnungen zum Beschriften). Fehlerkiste und Probearbeit mit Notenschätzung gibt es auch hier (`public/nw.js`, Tests `tools/test-nw.mjs` und `tools/e2e-nw.mjs`).
 

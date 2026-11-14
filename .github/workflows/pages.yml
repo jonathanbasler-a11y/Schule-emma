@@ -35,6 +35,8 @@ jobs:
         run: node tools/e2e-nw.mjs
       - name: Winter-Design und Garderobe im Browser
         run: node tools/e2e-winter.mjs
+      - name: Sicherung im Browser
+        run: node tools/e2e-sicherung.mjs
       - name: Version und Cache
         run: node tools/test-version.mjs
       - name: Offline
