@@ -356,3 +356,12 @@ table.stafel td.hi { background: var(--terra-soft); font-weight: 800; }
   .exami .row { flex-direction: column; align-items: center; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Naturwissenschaften: Fach-Umschalter und Bilder */
+.fachtabs { display: flex; gap: 8px; margin: 10px 0; }
+.fachtabs button { flex: 1; min-height: 48px; border-radius: 14px; border: 2px solid var(--line); background: var(--card); font: inherit; font-weight: 700; color: inherit; }
+.fachtabs button.on { background: var(--terra); color: #fff; border-color: var(--terra); }
+.nwfigw { margin: 4px 0 10px; text-align: center; }
+.nwfig { width: 100%; max-width: 460px; height: auto; }
+.nwfig.globe { width: 300px; max-width: 100%; }
+.nwsatz { display: block; margin: 4px 0; font-size: 1.1rem; }

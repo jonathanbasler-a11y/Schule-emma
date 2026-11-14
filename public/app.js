@@ -1,7 +1,7 @@
 // Capy & Mathe – Oberfläche: Start, Thema üben, Fehlerkiste, Probearbeit, Album, Einstellungen.
 (function () {
   "use strict";
-  const A = window.Aufgaben, C = window.Capy;
+  const A = window.Aufgaben, C = window.Capy, N = window.NW || {};
   const TEST = window.__EMMA_TEST || {};
   const KEY = "capy-mathe-v1";
   const ROUND = TEST.roundLen || 8;
@@ -14,9 +14,9 @@
   // ---------- Spielstand ----------
   function fresh() {
     return {
-      v: 1, xp: 0, gens: {}, box: [], exams: [], exam: null, stickers: [], wear: [], scene: "onsen",
+      v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: [], scene: "onsen",
       days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: {},
-      set: { date: "2026-11-09", examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
+      set: { date: "2026-11-09", dateNw: "2026-11-23", examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
   function load() {
@@ -33,6 +33,9 @@
     if (!Array.isArray(o.set.key) || o.set.key.length !== 5 || o.set.key.some((x) => typeof x !== "number")) o.set.key = fresh().set.key;
     o.box = o.box.filter((b) => b && A.G[b.gen]);
     if (o.exam && (!o.exam.seed || !o.exam.start)) o.exam = null;
+    if (o.fach !== "mathe" && o.fach !== "nw") o.fach = "nw";
+    if (typeof o.set.dateNw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateNw)) o.set.dateNw = fresh().set.dateNw;
+    if (o.exam && o.exam.fach !== "nw") o.exam.fach = "mathe";
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
     // Mochi trägt die Mandarine nicht mehr von selbst
     if (!o.flags.ohneYuzu) { o.wear = o.wear.filter((w) => w !== "yuzu"); o.flags.ohneYuzu = true; }
@@ -50,8 +53,8 @@
     S.lastDay = k;
     S.days[k] = (S.days[k] || 0);
   }
-  function daysLeft() {
-    const t = new Date(S.set.date + "T08:00:00");
+  function daysLeft(f) {
+    const t = new Date((f === "nw" ? S.set.dateNw : S.set.date) + "T08:00:00");
     if (isNaN(t)) return null;
     const a = new Date(); a.setHours(0, 0, 0, 0); const b = new Date(t); b.setHours(0, 0, 0, 0);
     return Math.round((b - a) / 86400000);
@@ -62,6 +65,8 @@
   const genScore = (id) => { const g = S.gens[id]; if (!g) return 0; const lv = A.G[id].lvls; const pos = lv.indexOf(g.lvl); const span = lv.length - 1; return Math.min(1, ((pos < 0 ? 0 : pos) * 2 + Math.min(g.st, 2)) / (span * 2 + 2)); };
   const topicPct = (t) => Math.round((t.gens.reduce((a, id) => a + genScore(id), 0) / t.gens.length) * 100);
   const topicById = (id) => A.TOPICS.find((t) => t.id === id);
+  const topicsOf = (f) => A.TOPICS.filter((t) => (t.fach || "mathe") === f);
+  const probeParts = (f, seed) => (f === "nw" ? N.probearbeit(seed) : A.probearbeit(seed));
 
   // ---------- Sticker und Belohnungen ----------
   const STICKERS = [
@@ -105,7 +110,7 @@
 
   function topbar(title, back) {
     return `<header class="top">
-      ${back ? `<button class="iconbtn" data-act="${back}" aria-label="Zurück">‹</button>` : `<div class="brand">${C.mochi("calm", [], 34)}<span>Capy &amp; Mathe</span></div>`}
+      ${back ? `<button class="iconbtn" data-act="${back}" aria-label="Zurück">‹</button>` : `<div class="brand">${C.mochi("calm", [], 34)}<span>Capy &amp; Schule</span></div>`}
       ${title ? `<h1>${title}</h1>` : ""}
       <div class="topr">
         <span class="chip" title="Tage am Stück">🔥 ${S.streak || 0}</span>
@@ -120,8 +125,8 @@
 
   // ---------- Start ----------
   function vHome() {
-    const d = daysLeft();
-    const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur Mathe-Arbeit` : d === 1 ? "<b>Morgen</b> ist die Mathe-Arbeit – du schaffst das!" : d === 0 ? "<b>Heute</b> ist die Mathe-Arbeit. Viel Glück! 🍀" : "Die Arbeit ist geschafft – üben hält dich fit.";
+    const d = daysLeft(S.fach), ARB = S.fach === "nw" ? "NW-Arbeit" : "Mathe-Arbeit";
+    const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur ${ARB}` : d === 1 ? "<b>Morgen</b> ist die ${ARB} – du schaffst das!" : d === 0 ? "<b>Heute</b> ist die ${ARB}. Viel Glück! 🍀" : "Die Arbeit ist geschafft – üben hält dich fit.";
     const boxN = S.box.length;
     const running = S.exam ? `<button class="big-act exam running" data-act="examResume"><span class="ico">⏱️</span><span><b>Probearbeit fortsetzen</b><small>Du hast eine angefangene Probearbeit.</small></span></button>` : "";
     return topbar("") + `<main class="home">
@@ -131,14 +136,15 @@
         </div>
         <div class="countdown">${cd}</div>
       </section>
+      <nav class="fachtabs" aria-label="Fach wählen"><button class="${S.fach === 'nw' ? 'on' : ''}" data-act="fach" data-v="nw">🪐 Naturwissenschaften</button><button class="${S.fach === 'mathe' ? 'on' : ''}" data-act="fach" data-v="mathe">🔢 Mathe</button></nav>
       <section class="acts">
         ${running}
         <button class="big-act exam" data-act="examIntro"><span class="ico">📝</span><span><b>Probearbeit schreiben</b><small>${S.set.examMin} Minuten, mit Note – wie in der Schule</small></span></button>
         <button class="big-act box" data-act="box" ${boxN ? "" : "disabled"}><span class="ico">📦</span><span><b>Fehlerkiste${boxN ? ` (${boxN})` : ""}</b><small>${boxN ? "Deine Fehler nochmal üben" : "Noch leer – super!"}</small></span></button>
         <button class="big-act mix" data-act="mix"><span class="ico">🍵</span><span><b>Gemischte Runde</b><small>${ROUND} Aufgaben aus allen Themen</small></span></button>
       </section>
-      <h2 class="sec">Themen vom Lernzettel</h2>
-      <section class="topics">${A.TOPICS.map((t) => `<button class="tcard ${t.lern ? "" : "extra"}" data-act="topic" data-v="${t.id}"><span class="ticon">${t.icon}</span><span class="tname">${t.name}${t.lern ? "" : "<small>nicht auf dem Lernzettel</small>"}</span>${ring(topicPct(t))}</button>`).join("")}</section>
+      <h2 class="sec">${S.fach === "nw" ? "Themen aus dem Unterricht" : "Themen vom Lernzettel"}</h2>
+      <section class="topics">${topicsOf(S.fach).map((t) => `<button class="tcard ${t.lern ? "" : "extra"}" data-act="topic" data-v="${t.id}"><span class="ticon">${t.icon}</span><span class="tname">${t.name}${t.lern ? "" : "<small>nicht auf dem Lernzettel</small>"}</span>${ring(topicPct(t))}</button>`).join("")}</section>
       <nav class="foot">
         <button data-act="album">🌟 Sticker-Album</button>
         <button data-act="cozy">🛋️ Orte &amp; Outfits</button>
@@ -166,7 +172,7 @@
   function vTopic() {
     const t = topicById(view.topic);
     return topbar(t.icon + " " + t.name, "home") + `<main class="topic">
-      <div class="merke"><b>Merke</b> ${esc(MERKE[t.id] || "")}</div>
+      <div class="merke"><b>Merke</b> ${esc(MERKE[t.id] || (N.MERKE || {})[t.id] || "")}</div>
       <button class="big-act mix" data-act="startTopic" data-v="${t.id}"><span class="ico">${t.icon}</span><span><b>Alles gemischt üben</b><small>${ROUND} Aufgaben, werden mit dir schwerer</small></span></button>
       <h2 class="sec">Einzeln üben</h2>
       <ul class="skills">${t.gens.map((id) => { const g = S.gens[id], p = Math.round(genScore(id) * 100); const lv = g ? A.G[id].lvls.indexOf(g.lvl) : 0; return `<li><button data-act="startGen" data-v="${id}"><span class="sname">${A.G[id].name}</span><span class="slvl" title="Stufe">${A.G[id].lvls.map((_, i) => `<i class="${i <= lv && g ? "on" : ""}">${DOTS[Math.min(i, 2)]}</i>`).join("")}</span><span class="bar"><i style="width:${p}%"></i></span></button></li>`; }).join("")}</ul></main>`;
@@ -185,7 +191,7 @@
     if (P.mode === "box") return P.queue[P.i];
     let pool;
     if (P.mode === "topic") pool = topicById(P.topic).gens;
-    else pool = A.TOPICS.filter((t) => t.lern).flatMap((t) => t.gens);
+    else pool = topicsOf(S.fach).filter((t) => t.lern).flatMap((t) => t.gens);
     // schwächere Bereiche öfter, gerade Geübtes seltener
     const w = pool.map((id) => (P.recent.includes(id) ? 0.15 : 1) * (1.4 - genScore(id)));
     let r = Math.random() * w.reduce((a, b) => a + b, 0), i = 0;
@@ -429,7 +435,7 @@
       <div class="row">${C.mochi("calm", S.wear.concat(["brille"]).filter((v, i, a) => a.indexOf(v) === i), 130)}<div>
       <h2>Wie eine echte Klassenarbeit</h2>
       <ul class="plain"><li>⏱️ <b>${S.set.examMin} Minuten</b> Zeit. Die Uhr läuft weiter, auch wenn du die App kurz verlässt.</li>
-      <li>📄 10 Aufgaben wie im Buch-Test auf Seite 37: Zahlenstrahl, Zahlwörter, Runden, Kopfrechnen, schriftlich rechnen, Platzhalter, Sachaufgaben, römische Zahlen, Zweiersystem, Diagramme, Fachbegriffe.</li>
+      <li>${S.fach === "nw" ? "📄 5 Aufgabengruppen wie auf deinen Arbeitsblättern: Sonnensystem und Planeten, Sterne und Monde, ein Tag auf der ISS und das Gradnetz der Erde (beschriften, ankreuzen, Lückentext, Rechnen)." : "📄 10 Aufgaben wie im Buch-Test auf Seite 37: Zahlenstrahl, Zahlwörter, Runden, Kopfrechnen, schriftlich rechnen, Platzhalter, Sachaufgaben, römische Zahlen, Zweiersystem, Diagramme, Fachbegriffe."}</li>
       <li>🤫 Keine Hilfe und kein „richtig/falsch“ während der Arbeit – erst am Ende.</li>
       <li>📝 Beim schriftlichen Rechnen gibt es auch einen Punkt für den Überschlag.</li>
       <li>🎓 Am Ende bekommst du Punkte und eine Note – so ungefähr wie in der Schule.</li></ul></div></div>
@@ -439,12 +445,12 @@
   let EX = null; // { seed, parts, start, dur }
   function examFromState() {
     if (!S.exam) return null;
-    const parts = A.probearbeit(S.exam.seed);
-    return { seed: S.exam.seed, parts, start: S.exam.start, dur: S.exam.dur, answers: S.exam.answers || {} };
+    const parts = probeParts(S.exam.fach, S.exam.seed);
+    return { fach: S.exam.fach, seed: S.exam.seed, parts, start: S.exam.start, dur: S.exam.dur, answers: S.exam.answers || {} };
   }
   function startExam() {
     const seed = rndSeed();
-    S.exam = { seed, start: Date.now(), dur: TEST.examMs || S.set.examMin * 60000, answers: {} };
+    S.exam = { fach: S.fach, seed, start: Date.now(), dur: TEST.examMs || S.set.examMin * 60000, answers: {} };
     save();
     EX = examFromState();
     go("exam");
@@ -506,7 +512,7 @@
     });
     const pct = Math.round((got / max) * 1000) / 10;
     const n = A.note(pct, S.set.key);
-    const ex = { d: Date.now(), seed: EX.seed, got, max, pct, n: n.n, txt: n.txt, per, byTopic, wrong: wrong.map((w) => [w.ai, w.ti]), answers: S.exam.answers };
+    const ex = { d: Date.now(), fach: EX.fach, seed: EX.seed, got, max, pct, n: n.n, txt: n.txt, per, byTopic, wrong: wrong.map((w) => [w.ai, w.ti]), answers: S.exam.answers };
     S.exams.push(ex);
     S.xp += Math.round(got * 3);
     markDay();
@@ -530,7 +536,7 @@
   }
   function vExamResult() {
     const ex = S.exams[view.idx];
-    const parts = A.probearbeit(ex.seed);
+    const parts = probeParts(ex.fach || "mathe", ex.seed);
     const mood = ex.n <= 2 ? "proud" : ex.n <= 3 ? "happy" : "calm";
     const msg = ex.n <= 1 ? "Ausgezeichnet! Damit kannst du ganz entspannt in die Arbeit gehen." : ex.n <= 2 ? "Richtig gut! Schau dir die paar Fehler an – dann sitzt alles." : ex.n <= 3 ? "Ordentlich! Mit der Fehlerkiste holst du noch einiges raus." : "Das ist noch nicht die Note, die du willst – aber genau dafür üben wir. Fang mit der Fehlerkiste an.";
     const topicRows = Object.entries(ex.byTopic).map(([k, [g, m]]) => [topicById(k), g, m]).sort((a, b) => a[1] / a[2] - b[1] / b[2]);
@@ -571,6 +577,7 @@
     const k = S.set.key;
     return topbar("⚙️ Einstellungen", "home") + `<main class="settings">
       <div class="card"><h2>Für dich</h2>
+        <label class="row2">Tag der NW-Arbeit <input type="date" data-set="dateNw" value="${esc(S.set.dateNw)}"></label>
         <label class="row2">Tag der Mathe-Arbeit <input type="date" data-set="date" value="${esc(S.set.date)}"></label>
         <label class="row2">Musik-Lautstärke <input type="range" min="0" max="1" step="0.05" data-set="vol" value="${S.music.vol}"></label>
         <label class="row2">Klänge bei richtig/falsch <input type="checkbox" data-set="sound" ${S.sound ? "checked" : ""}></label>
@@ -610,6 +617,7 @@
     const act = b.dataset.act, v = b.dataset.v;
     switch (act) {
       case "home": go("home"); break;
+      case "fach": if (v === "nw" || v === "mathe") { S.fach = v; save(); render(); } break;
       case "topic": go("topic", { topic: v }); break;
       case "startTopic": startPractice("topic", { topic: v }); break;
       case "startGen": startPractice("gen", { gen: v }); break;
@@ -672,6 +680,7 @@
     if (x.dataset.set) {
       const k = x.dataset.set;
       if (k === "date") S.set.date = x.value || S.set.date;
+      if (k === "dateNw") S.set.dateNw = x.value || S.set.dateNw;
       if (k === "examMin") S.set.examMin = Number(x.value);
       if (k === "theme") { S.set.theme = x.value; applyTheme(); }
       if (k === "sound") S.sound = x.checked;
