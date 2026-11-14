@@ -19,11 +19,16 @@
       set: { date: "2026-11-09", dateNw: "2026-11-23", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
+  // Spielstand mehrfach sichern: Hauptschlüssel, zweite Kopie, IndexedDB-Spiegel, dazu eine Sicherungsdatei aus den Einstellungen
+  const BAK = KEY + "-bak";
+  const readKey = (k) => { try { const t = localStorage.getItem(k); if (!t) return null; const o = JSON.parse(t); return o && typeof o === "object" && !Array.isArray(o) ? o : null; } catch (e) { try { localStorage.setItem(k + "-defekt", localStorage.getItem(k)); } catch (e2) { /* egal */ } return null; } };
+  const primary = readKey(KEY), bak = readKey(BAK);
+  const idb = (fn) => { try { const q = indexedDB.open("capy-save", 1); q.onupgradeneeded = () => q.result.createObjectStore("s"); q.onsuccess = () => { try { fn(q.result); } catch (e) { /* egal */ } }; } catch (e) { /* ohne IndexedDB weiter */ } };
+  let skipSave = false; // kurz vor dem Neuladen nach „Sicherung laden“: sonst überschreibt pagehide den neuen Stand
   function load() {
     const f = fresh();
-    let s;
-    try { s = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) { s = null; }
-    if (!s || typeof s !== "object") return f;
+    const s = primary || bak;
+    if (!s) return f;
     const o = Object.assign(f, s);
     o.set = Object.assign(fresh().set, s.set && typeof s.set === "object" ? s.set : {});
     o.music = Object.assign(fresh().music, s.music && typeof s.music === "object" ? s.music : {});
@@ -48,7 +53,47 @@
     return o;
   }
   let S = load();
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* voll oder privat */ } };
+  const save = () => {
+    if (skipSave) return;
+    let t;
+    try { t = JSON.stringify(S); localStorage.setItem(KEY, t); localStorage.setItem(BAK, t); } catch (e) { /* voll oder privat */ }
+    if (t) idb((db) => db.transaction("s", "readwrite").objectStore("s").put(t, "state"));
+  };
+  // Vor Tab-Wechsel und App-Schließen noch einmal sichern; Speicher dauerhaft anfordern, damit Safari ihn nicht aufräumt
+  try {
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") save(); });
+    window.addEventListener("pagehide", save);
+  } catch (e) { /* egal */ }
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* egal */ }
+  // Kein lesbarer Stand im Browser (gelöscht oder kaputt), aber IndexedDB hat noch einen: wiederherstellen (einmal pro Sitzung, gegen Endlos-Neuladen)
+  try {
+    if (!primary && !bak && !TEST.noRestore && !sessionStorage.getItem("capy-restored")) {
+      idb((db) => { const g = db.transaction("s").objectStore("s").get("state"); g.onsuccess = () => { if (g.result) { try { skipSave = true; localStorage.setItem(KEY, g.result); localStorage.setItem(BAK, g.result); sessionStorage.setItem("capy-restored", "1"); location.reload(); } catch (e) { skipSave = false; } } }; });
+    }
+  } catch (e) { /* egal */ }
+  // Sicherungsdatei speichern und laden
+  const backupDownload = () => {
+    S.lastBackup = Date.now(); save();
+    const blob = new Blob([JSON.stringify(S)], { type: "application/json" }), a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `capy-sicherung-${dayKey()}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    showVersion();
+  };
+  const backupLoad = (file) => {
+    const fr = new FileReader();
+    fr.onload = () => {
+      try {
+        const o = JSON.parse(fr.result);
+        if (!o || typeof o !== "object" || Array.isArray(o) || typeof o.xp !== "number" || !o.gens || typeof o.gens !== "object") throw new Error("kein Spielstand");
+        const t = JSON.stringify(o);
+        skipSave = true;
+        localStorage.setItem(KEY, t); localStorage.setItem(BAK, t);
+        idb((db) => db.transaction("s", "readwrite").objectStore("s").put(t, "state"));
+        location.reload();
+      } catch (e) { skipSave = false; toast("Diese Datei ist keine Sicherung."); }
+    };
+    fr.readAsText(file);
+  };
 
   const dayKey = (d) => { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
   function markDay() {
@@ -115,8 +160,11 @@
   }
   function showVersion() {
     let el = document.getElementById("ver");
-    if (!el) { el = document.createElement("div"); el.id = "ver"; document.body.appendChild(el); }
-    el.textContent = "Version " + ((window.CAPY_VERSION && window.CAPY_VERSION.n) || "?");
+    if (!el) { el = document.createElement("button"); el.id = "ver"; el.type = "button"; document.body.appendChild(el); el.onclick = () => { if (confirm("Sicherung als Datei speichern? (landet in „Dateien“)")) { backupDownload(); toast("Sicherung gespeichert."); } }; }
+    const v = (window.CAPY_VERSION && window.CAPY_VERSION.n) || "?", age = S.lastBackup ? (Date.now() - S.lastBackup) / 864e5 : null;
+    el.textContent = `Version ${v}` + (age == null ? " · noch keine Sicherung" : age > 3 ? ` · Sicherung vor ${Math.floor(age)} T.` : " · gesichert ✓");
+    el.classList.toggle("old", age == null || age > 3);
+    el.setAttribute("aria-label", el.textContent + ". Antippen: Sicherung speichern");
   }
   function applyTheme() {
     const h = new Date().getHours();
@@ -632,6 +680,11 @@
         <h3>Themen</h3>
         <table class="tab wide">${A.TOPICS.map((t) => { const n = t.gens.reduce((a, id) => a + (S.gens[id] ? S.gens[id].n : 0), 0), ok = t.gens.reduce((a, id) => a + (S.gens[id] ? S.gens[id].ok : 0), 0); return `<tr><th>${t.icon} ${t.name}</th><td>${topicPct(t)} %</td><td>${n} Aufgaben, ${ok} auf Anhieb richtig</td></tr>`; }).join("")}</table>
         <p class="small">Insgesamt ${S.stats.tasks} Aufgaben, ${S.stats.ok} richtig, ${Object.keys(S.days).length} Übungstage. Fehlerkiste: ${S.box.length}.</p>
+      </div>
+      <div class="card"><h2>Sicherung</h2>
+        <p class="small">Letzte Sicherungsdatei: ${S.lastBackup ? new Date(S.lastBackup).toLocaleString("de-DE") : "noch keine"}. Der Fortschritt liegt auf diesem Gerät im Browser und wird zusätzlich doppelt gesichert. Speichere ab und zu eine Sicherungsdatei (landet in „Dateien“). Mit „Sicherung laden“ kommt alles zurück, auch auf einem anderen Gerät.</p>
+        <div class="row"><button class="btn" data-act="backup">Sicherung speichern</button> <label class="btn ghost" for="bkfile" role="button" tabindex="0">Sicherung laden</label><input type="file" id="bkfile" accept=".json,application/json" hidden></div>
+        <h3>Zurücksetzen</h3>
         <button class="btn danger" data-act="reset">Alles zurücksetzen</button>
       </div></main>`;
   }
@@ -644,6 +697,7 @@
     }[view.name] || vHome;
     app.innerHTML = v();
     app.dataset.view = view.name;
+    const bk = $("#bkfile"); if (bk) bk.onchange = () => { if (bk.files && bk.files[0]) backupLoad(bk.files[0]); };
     if (view.name === "exam") { examRestore(); examTick(); }
     if (view.name === "practice" && !P.cur.done) { const f = $(".task input:not([readonly])"); if (f && !TEST.noFocus && !matchMedia("(pointer: coarse)").matches) f.focus(); }
   }
@@ -680,13 +734,14 @@
       case "album": go("album"); break;
       case "cozy": go("cozy"); break;
       case "settings": go("settings"); break;
+      case "backup": backupDownload(); toast("Sicherung gespeichert."); render(); break;
       case "scene": S.scene = v; save(); render(); break;
       case "wear": if (C.OUTFITS.some((o) => o.id === v && S.xp >= o.xp)) { S.wear = C.toggleWear(S.wear, v); save(); render(); } break;
       case "nackt": S.wear = []; save(); render(); break;
       case "zufall": { const free = C.OUTFITS.filter((o) => S.xp >= o.xp); let w = []; for (const [sl] of C.SLOTS) { if (Math.random() < 0.45) { const c = free.filter((o) => o.slot === sl); if (c.length) w = C.toggleWear(w, c[Math.floor(Math.random() * c.length)].id); } } S.wear = w; save(); render(); break; }
       case "locked": toast(`🔒 Sammle mehr ${CUR().i} ${CUR().n}, um das freizuschalten.`); break;
       case "music": toggleMusic(); break;
-      case "reset": if (confirm("Wirklich alles löschen? Fortschritt, Sticker und Probearbeiten sind dann weg.")) { const keep = S.set; S = fresh(); S.set = keep; save(); go("home"); } break;
+      case "reset": if (confirm("Wirklich alles löschen? Fortschritt, Sticker und Probearbeiten sind dann weg. Tipp: Speichere vorher eine Sicherung.")) { const keep = S.set; S = fresh(); S.set = keep; save(); go("home"); } break;
     }
   });
   function toggleMusic() {
