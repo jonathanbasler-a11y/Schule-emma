@@ -139,4 +139,52 @@
   C.SCENES.unshift(...winter);
   const HERBST_XP = { onsen: 0, wald: 120, lese: 260, regen: 450, tee: 650, sterne: 950 };
   C.SCENES.forEach((s) => { if (!s.winter && HERBST_XP[s.id] != null) s.xp = HERBST_XP[s.id]; });
+
+  // ---------- Themen-Sets: 100 neue Teile und 10 neue Orte, die mit der Zeit erscheinen ----------
+  // Jedes Set färbt 20 Grundteile (und 2 Orte) in neuen Farben um und kommt an einem eigenen Datum. Die Punkte dafür zählen ab
+  // dem Stand beim Update (siehe C.rebase), damit auch Mochis Besitzer mit vielen Punkten wieder etwas zum Sammeln haben.
+  const hexRe = /#([0-9a-fA-F]{6})\b/g;
+  const KEEP = new Set([O.toLowerCase(), "#e5a763"]);
+  function shiftHue(svg, deg) {
+    return svg.replace(hexRe, (m, h) => {
+      if (KEEP.has(m.toLowerCase())) return m;
+      let r = parseInt(h.slice(0, 2), 16) / 255, g = parseInt(h.slice(2, 4), 16) / 255, b = parseInt(h.slice(4, 6), 16) / 255;
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+      if (d < 0.1 || l > 0.92 || l < 0.1) return m; // Weiß, Grau und sehr Dunkles bleiben
+      const sat = d / (1 - Math.abs(2 * l - 1));
+      let hh = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+      hh = (((hh * 60 + deg) % 360) + 360) % 360;
+      const c = (1 - Math.abs(2 * l - 1)) * sat, x = c * (1 - Math.abs(((hh / 60) % 2) - 1)), mm = l - c / 2;
+      const [r1, g1, b1] = hh < 60 ? [c, x, 0] : hh < 120 ? [x, c, 0] : hh < 180 ? [0, c, x] : hh < 240 ? [0, x, c] : hh < 300 ? [x, 0, c] : [c, 0, x];
+      return "#" + [r1, g1, b1].map((v) => Math.round((v + mm) * 255).toString(16).padStart(2, "0")).join("");
+    });
+  }
+  C.THEMES = [
+    { id: "weltraum", name: "Weltraum", icon: "🪐", hue: 250, from: "2026-11-15", szenen: [["onsenschnee", "Onsen im Weltall"], ["iglu", "Mond-Iglu"]] },
+    { id: "eis", name: "Eiszauber", icon: "🧊", hue: 190, from: "2026-11-17", szenen: [["eissee", "Kristallsee"], ["winterwald", "Eiswald"]] },
+    { id: "zimt", name: "Weihnachtsbäckerei", icon: "🍪", hue: 25, from: "2026-11-19", szenen: [["huette", "Zimt-Stube"], ["kekshaus", "Zuckerhaus"]] },
+    { id: "polar", name: "Polarnacht", icon: "🌌", hue: 130, from: "2026-11-21", szenen: [["nordlicht", "Polarlicht-Nacht"], ["markt", "Nachtmarkt im Norden"]] },
+    { id: "gold", name: "Goldener Tag", icon: "🏆", hue: 55, from: "2026-11-23", szenen: [["tanne", "Goldener Baum"], ["markt", "Festabend"]] },
+  ];
+  const BASES = ["bommel", "krone", "elfenhut", "barett", "herzbrille", "sonnenbrille", "schalstreifen", "halstuch", "sternkette", "herzkette",
+    "ohrringe", "norweger", "winterjacke", "umhang", "kakao", "laterne", "fluegel", "pinguin", "schneemann", "rotkehlchen"];
+  C.THEMES.forEach((t, ti) => {
+    BASES.forEach((b, j) => {
+      const id = b + "_" + t.id;
+      EXTRA[id] = { slot: EXTRA[b].slot, l: EXTRA[b].l, svg: shiftHue(EXTRA[b].svg, t.hue) };
+      SLOT_OF[id] = EXTRA[b].slot;
+      C.OUTFITS.push({ id, name: `${NAMES[b]} (${t.name})`, slot: EXTRA[b].slot, xp: 0, d: ti * 1200 + 60 + j * 54, from: t.from, theme: t.id });
+    });
+    t.szenen.forEach(([b, name], k) => {
+      const id = b + "_" + t.id;
+      SC[id] = (W, H) => shiftHue(SC[b](W, H), t.hue);
+      C.SCENES.push({ id, name, xp: 0, d: ti * 1200 + (k ? 800 : 300), from: t.from, theme: t.id, winter: true });
+    });
+  });
+  // Punkte der neuen Sets zählen ab einem Grundstand (Punktestand beim Update); ohne Angabe ab 0
+  C.rebase = function (base) {
+    base = Number(base) || 0;
+    for (const o of C.OUTFITS.concat(C.SCENES)) if (o.d != null) o.xp = base + o.d;
+  };
+  C.rebase(0);
 })(typeof self !== "undefined" ? self : this);

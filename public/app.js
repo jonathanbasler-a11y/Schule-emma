@@ -15,7 +15,7 @@
   function fresh() {
     return {
       v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: ["bommel", "schalstreifen"], scene: "onsenschnee",
-      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true },
+      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true, xpBase: 0 },
       set: { date: "2026-11-09", dateNw: "2026-11-23", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
@@ -48,11 +48,14 @@
     if (typeof o.set.dateNw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateNw)) o.set.dateNw = fresh().set.dateNw;
     if (o.exam && o.exam.fach !== "nw") o.exam.fach = "mathe";
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
+    // Themen-Sets: ihre Punkte zählen ab dem Stand beim ersten Start dieser Version (so gibt es auch bei vielen Punkten Neues zu sammeln)
+    if (typeof o.flags.xpBase !== "number") o.flags.xpBase = o.xp;
     // Mochi trägt die Mandarine nicht mehr von selbst
     if (!o.flags.ohneYuzu) { o.wear = o.wear.filter((w) => w !== "yuzu"); o.flags.ohneYuzu = true; }
     return o;
   }
   let S = load();
+  C.rebase(S.flags.xpBase);
   const save = () => {
     if (skipSave) return;
     let t;
@@ -95,6 +98,9 @@
     fr.readAsText(file);
   };
 
+  const todayStr = () => TEST.today || dayKey();
+  const can = (o) => S.xp >= o.xp && (!o.from || todayStr() >= o.from);
+  const dm = (iso) => iso.slice(8) + "." + iso.slice(5, 7) + ".";
   const dayKey = (d) => { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
   function markDay() {
     const k = dayKey();
@@ -135,7 +141,7 @@
   function checkStickers() {
     const neu = [];
     for (const s of STICKERS) if (!S.stickers.includes(s.id) && s.t()) { S.stickers.push(s.id); neu.push(s); }
-    const unlocked = [...C.OUTFITS.filter((o) => o.xp <= S.xp && o.xp > (S.flags.lastXpSeen || -1)), ...C.SCENES.filter((o) => o.xp <= S.xp && o.xp > (S.flags.lastXpSeen || -1))].filter((x) => x.xp > 0);
+    const unlocked = [...C.OUTFITS.filter((o) => can(o) && o.xp > (S.flags.lastXpSeen || -1)), ...C.SCENES.filter((o) => can(o) && o.xp > (S.flags.lastXpSeen || -1))].filter((x) => x.xp > 0);
     S.flags.lastXpSeen = S.xp;
     neu.forEach((s, i) => setTimeout(() => toast(`${s.icon} Neuer Sticker: ${s.name}`), 300 + i * 3100));
     unlocked.forEach((u, i) => setTimeout(() => toast(`🎁 Freigeschaltet: ${u.name}`), 300 + (neu.length + i) * 3100));
@@ -650,19 +656,20 @@
       <div class="stickers">${STICKERS.map((s) => { const has = S.stickers.includes(s.id); return `<div class="sticker ${has ? "has" : ""}"><span class="sicon">${has ? s.icon : "?"}</span><span class="sname">${has ? s.name : esc(s.name)}</span></div>`; }).join("")}</div></main>`;
   }
   function vCozy() {
-    const free = C.OUTFITS.filter((o) => S.xp >= o.xp).length, freeS = C.SCENES.filter((o) => S.xp >= o.xp).length;
+    const free = C.OUTFITS.filter(can).length, freeS = C.SCENES.filter(can).length;
     const pick = (o, kind) => {
-      const ok = S.xp >= o.xp, sel = kind === "scene" ? S.scene === o.id : S.wear.includes(o.id);
+      const ok = can(o), sel = kind === "scene" ? S.scene === o.id : S.wear.includes(o.id);
       const mini = kind === "scene" ? `<span class="mini s">${C.scene(o.id)}</span>` : `<span class="mini m">${C.mochi("calm", [o.id], 64)}</span>`;
-      return `<button class="pick ${sel ? "sel" : ""} ${ok ? "" : "lock"}" data-act="${ok ? (kind === "scene" ? "scene" : "wear") : "locked"}" data-v="${o.id}" aria-pressed="${sel}" ${ok ? "" : 'aria-disabled="true"'}>${mini}<span class="pn">${esc(o.name)}</span>${ok ? "" : `<small>🔒 ab ${o.xp} ${CUR().i}</small>`}</button>`;
+      return `<button class="pick ${sel ? "sel" : ""} ${ok ? "" : "lock"}" data-act="${ok ? (kind === "scene" ? "scene" : "wear") : "locked"}" data-v="${o.id}" aria-pressed="${sel}" ${ok ? "" : 'aria-disabled="true"'}>${mini}<span class="pn">${esc(o.name)}</span>${ok ? "" : `<small>🔒 ${o.from && todayStr() < o.from ? "ab " + dm(o.from) : "ab " + o.xp + " " + CUR().i}</small>`}</button>`;
     };
     return topbar("🛋️ Orte & Outfits", "home") + `<main class="cozy">
       <div class="card preview">${C.scene(S.scene)}<div class="heroin">${C.mochi("happy", S.wear, 150)}</div></div>
-      <p class="small center">${free} von ${C.OUTFITS.length} Sachen und ${freeS} von ${C.SCENES.length} Orten sind freigeschaltet. Tippe etwas an, Mochi probiert es sofort an.</p>
+      <p class="small center">${free} von ${C.OUTFITS.length} Sachen und ${freeS} von ${C.SCENES.length} Orten sind freigeschaltet. Alle paar Tage kommt ein neues Set dazu. Tippe etwas an, Mochi probiert es sofort an.</p>
       <div class="btns center"><button class="btn soft" data-act="nackt">Alles ausziehen</button><button class="btn soft" data-act="zufall">🎲 Überrasch mich</button></div>
       <h2 class="sec">Gemütliche Orte</h2>
-      <div class="grid3">${C.SCENES.map((o) => pick(o, "scene")).join("")}</div>
-      ${C.SLOTS.map(([sl, nm]) => `<h2 class="sec">${nm}</h2><div class="grid3">${C.OUTFITS.filter((o) => o.slot === sl).map((o) => pick(o, "wear")).join("")}</div>`).join("")}
+      <div class="grid3">${C.SCENES.filter((o) => !o.theme).map((o) => pick(o, "scene")).join("")}</div>
+      ${C.SLOTS.map(([sl, nm]) => `<h2 class="sec">${nm}</h2><div class="grid3">${C.OUTFITS.filter((o) => o.slot === sl && !o.theme).map((o) => pick(o, "wear")).join("")}</div>`).join("")}
+      ${C.THEMES.map((t) => { const sc = C.SCENES.filter((o) => o.theme === t.id), ou = C.OUTFITS.filter((o) => o.theme === t.id), n = sc.concat(ou).filter(can).length; return `<h2 class="sec theme" data-theme="${t.id}">${t.icon} Set „${t.name}“ <small>${todayStr() < t.from ? "kommt am " + dm(t.from) : n + " von " + (sc.length + ou.length) + " frei"}</small></h2><div class="grid3">${sc.map((o) => pick(o, "scene")).join("")}${ou.map((o) => pick(o, "wear")).join("")}</div>`; }).join("")}
       <p class="small center">${CUR().i} ${CUR().n} bekommst du für jede richtige Aufgabe und für Probearbeiten.</p></main>`;
   }
 
@@ -744,12 +751,12 @@
       case "settings": go("settings"); break;
       case "backup": backupDownload(); toast("Sicherung gespeichert."); render(); break;
       case "scene": S.scene = v; save(); render(); break;
-      case "wear": if (C.OUTFITS.some((o) => o.id === v && S.xp >= o.xp)) { S.wear = C.toggleWear(S.wear, v); save(); render(); } break;
+      case "wear": if (C.OUTFITS.some((o) => o.id === v && can(o))) { S.wear = C.toggleWear(S.wear, v); save(); render(); } break;
       case "nackt": S.wear = []; save(); render(); break;
-      case "zufall": { const free = C.OUTFITS.filter((o) => S.xp >= o.xp); let w = []; for (const [sl] of C.SLOTS) { if (Math.random() < 0.45) { const c = free.filter((o) => o.slot === sl); if (c.length) w = C.toggleWear(w, c[Math.floor(Math.random() * c.length)].id); } } S.wear = w; save(); render(); break; }
-      case "locked": toast(`🔒 Sammle mehr ${CUR().i} ${CUR().n}, um das freizuschalten.`); break;
+      case "zufall": { const free = C.OUTFITS.filter(can); let w = []; for (const [sl] of C.SLOTS) { if (Math.random() < 0.45) { const c = free.filter((o) => o.slot === sl); if (c.length) w = C.toggleWear(w, c[Math.floor(Math.random() * c.length)].id); } } S.wear = w; save(); render(); break; }
+      case "locked": { const o = C.OUTFITS.concat(C.SCENES).find((x) => x.id === v); toast(o && o.from && todayStr() < o.from ? `🔒 Dieses Set kommt am ${dm(o.from)}. Bis dahin: sammle ${CUR().i} ${CUR().n}!` : `🔒 Sammle mehr ${CUR().i} ${CUR().n}, um das freizuschalten.`); break; }
       case "music": toggleMusic(); break;
-      case "reset": if (confirm("Wirklich alles löschen? Fortschritt, Sticker und Probearbeiten sind dann weg. Tipp: Speichere vorher eine Sicherung.")) { const keep = S.set; S = fresh(); S.set = keep; save(); go("home"); } break;
+      case "reset": if (confirm("Wirklich alles löschen? Fortschritt, Sticker und Probearbeiten sind dann weg. Tipp: Speichere vorher eine Sicherung.")) { const keep = S.set; S = fresh(); S.set = keep; C.rebase(0); save(); go("home"); } break;
     }
   });
   function toggleMusic() {

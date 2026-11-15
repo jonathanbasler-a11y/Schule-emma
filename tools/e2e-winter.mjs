@@ -19,7 +19,7 @@ const check = (c, m) => { if (!c) { fails++; console.log("FAIL", m); } else cons
 const b = await chromium.launch();
 async function open(size = { width: 1180, height: 820 }, opts = {}) {
   const ctx = await b.newContext(Object.assign({ viewport: size, hasTouch: true, serviceWorkers: "block" }, opts.ctx || {}));
-  await ctx.addInitScript(() => { window.__EMMA_TEST = { noSW: true, roundLen: 3, noFocus: true }; });
+  await ctx.addInitScript((t) => { window.__EMMA_TEST = Object.assign({ noSW: true, roundLen: 3, noFocus: true, today: "2027-01-01" }, t); }, opts.test || {});
   const p = await ctx.newPage();
   p.errors = [];
   p.on("pageerror", (e) => p.errors.push(String(e)));
@@ -53,7 +53,7 @@ const S = (p) => p.evaluate(() => JSON.parse(JSON.stringify(window.__EMMA.S)));
   await p.click('[data-act="cozy"]');
   await p.waitForSelector(".cozy");
   const nOut = await p.locator('.cozy .pick[data-act="wear"]').count(), nLock = await p.locator(".cozy .pick.lock").count();
-  check(nOut >= 8 && nOut <= 16 && nLock >= 35, `Nur ein Startsatz ist frei: ${nOut} frei, ${nLock} gesperrt`);
+  check(nOut >= 8 && nOut <= 16 && nLock >= 130, `Nur ein Startsatz ist frei: ${nOut} frei, ${nLock} gesperrt`);
   check(await p.locator('.cozy .pick[data-act="scene"]').count() >= 3, "ein paar Orte frei");
   const heads = (await p.locator(".cozy h2.sec").allTextContents()).join("|");
   check(/Mützen/.test(heads) && /Schmuck/.test(heads) && /Kleidung/.test(heads) && /Freunde/.test(heads), "Bereiche: Mützen, Schmuck, Kleidung, Freunde …");
@@ -63,8 +63,8 @@ const S = (p) => p.evaluate(() => JSON.parse(JSON.stringify(window.__EMMA.S)));
   await p.click(`.cozy .pick[data-v="${locked}"]`, { force: true });
   check(!(await S(p)).wear.includes(locked) && await p.locator(".toast").count() >= 1, "Gesperrtes Teil bleibt aus, Mochi erklärt warum");
   // freischalten durch Punkte
-  await p.evaluate(() => { window.__EMMA.S.xp = 5000; window.__EMMA.save(); window.__EMMA.render(); });
-  check(await p.locator('.cozy .pick[data-act="locked"]').count() === 0, "mit 5000 Punkten ist alles frei");
+  await p.evaluate(() => { window.__EMMA.S.xp = 20000; window.__EMMA.save(); window.__EMMA.render(); });
+  check(await p.locator('.cozy .pick[data-act="locked"]').count() === 0, "mit 20000 Punkten (und nach dem Erscheinungsdatum) ist alles frei");
   await p.click(`.cozy .pick[data-v="${locked}"]`);
   check((await S(p)).wear.includes(locked), "freigeschaltetes Teil lässt sich anziehen");
   // zwei Mützen: die zweite ersetzt die erste
@@ -143,6 +143,45 @@ for (const [name, size] of [["iPad hoch", { width: 820, height: 1180 }], ["Handy
   const prev = await p.locator(".cozy .preview svg.mochi").boundingBox();
   check(prev && prev.width >= 100 && prev.x >= 0 && prev.x + prev.width <= size.width, `${name}: Mochi in der Vorschau sichtbar`);
   if (name === "Handy") await shot(p, "handy", false);
+  await ctx.close();
+}
+
+// 7) Themen-Sets: erscheinen nach Datum, Punkte zählen ab dem Stand beim Update
+{
+  const { ctx, p } = await open({ width: 1180, height: 820 }, { test: { today: "2026-11-16" } });
+  await p.evaluate(() => { window.__EMMA.S.xp = 20000; window.__EMMA.save(); window.__EMMA.render(); });
+  await p.click('[data-act="cozy"]'); await p.waitForSelector(".cozy");
+  const heads = await p.locator(".cozy h2.theme").allTextContents();
+  check(heads.length === 5 && /Weltraum/.test(heads[0]) && /Eiszauber/.test(heads[1]) && /kommt am 17\.11\./.test(heads[1]), "5 Sets als eigene Abschnitte, Eiszauber „kommt am 17.11.“: " + heads.join(" | "));
+  check(await p.locator('.cozy .pick[data-v="bommel_weltraum"]:not(.lock)').count() === 1, "Weltraum-Set ist am 16.11. mit genug Punkten frei");
+  check(await p.locator('.cozy .pick.lock[data-v="bommel_eis"]').count() === 1, "Eiszauber-Set ist am 16.11. trotz Punkten gesperrt");
+  await p.click('.cozy .pick[data-v="bommel_eis"]', { force: true });
+  check(/17\.11\./.test(await p.textContent(".toast")), "Mochi sagt, wann das Set kommt");
+  await p.click('.cozy .pick[data-v="bommel_weltraum"]');
+  check((await S(p)).wear.includes("bommel_weltraum"), "Teil aus dem Weltraum-Set lässt sich anziehen");
+  await p.click('.cozy .pick[data-v="onsenschnee_weltraum"]');
+  check((await S(p)).scene === "onsenschnee_weltraum", "Ort aus dem Weltraum-Set lässt sich wählen");
+  check(p.errors.length === 0, "Sets ohne Fehler " + p.errors.join("|"));
+  await ctx.close();
+}
+{
+  // alter Spielstand mit vielen Punkten: neue Sets zählen ab diesem Stand
+  const ctx = await b.newContext({ viewport: { width: 1180, height: 820 }, serviceWorkers: "block" });
+  await ctx.addInitScript(() => {
+    window.__EMMA_TEST = { noSW: true, today: "2027-01-01" };
+    if (!sessionStorage.getItem("seed")) { sessionStorage.setItem("seed", "1"); localStorage.setItem("capy-mathe-v1", JSON.stringify({ v: 1, xp: 3000, scene: "onsenschnee", wear: ["bommel"], stickers: [], box: [], exams: [], gens: {}, days: {}, flags: { winter1: true }, set: { season: "winter" }, stats: { tasks: 5, ok: 4, help: 0 } })); }
+  });
+  const p = await ctx.newPage(); p.errors = [];
+  p.on("pageerror", (e) => p.errors.push(String(e)));
+  await p.goto(url); await p.waitForSelector(".topics");
+  const st = await S(p);
+  check(st.flags.xpBase === 3000 && st.xp === 3000, "Grundstand 3000 wird gemerkt, Punkte bleiben");
+  await p.click('[data-act="cozy"]'); await p.waitForSelector(".cozy");
+  check(await p.locator('.cozy .pick[data-act="wear"][data-v$="_weltraum"]').count() === 0 && await p.locator('.cozy .pick[data-act="wear"][data-v="krone"]').count() === 1, "Mit 3000 Punkten: Altes frei, vom neuen Set noch nichts");
+  await p.evaluate(() => { window.__EMMA.S.xp += 300; window.__EMMA.save(); window.__EMMA.render(); });
+  const n = await p.locator('.cozy .pick[data-act="wear"][data-v$="_weltraum"]').count();
+  check(n >= 4 && n <= 6, "Nach 300 neuen Punkten sind die ersten Teile des Sets frei: " + n);
+  check(p.errors.length === 0, "ohne Fehler " + p.errors.join("|"));
   await ctx.close();
 }
 
