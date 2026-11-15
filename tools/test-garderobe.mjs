@@ -63,19 +63,40 @@ for (const o of O) {
   ok(C.toggleWear(C.toggleWear([], a), b).length === 2, "Schal und Kette zusammen");
 }
 // Anfang: viel ist schon frei
+const OB = O.filter((o) => !o.theme), SB = S.filter((o) => !o.theme), OT = O.filter((o) => o.theme), ST = S.filter((o) => o.theme);
 const free = O.filter((o) => o.xp === 0);
-ok(free.length >= 8 && free.length <= 16, "nur ein kleiner Startsatz ist frei: " + free.length + " von " + O.length);
+ok(free.length >= 8 && free.length <= 16 && free.every((o) => !o.theme), "nur ein kleiner Startsatz ist frei: " + free.length + " von " + O.length);
 ok(slots.every((sl) => free.some((o) => o.slot === sl)), "in jedem Bereich ist etwas frei");
 ok(slots.filter((sl) => O.filter((o) => o.slot === sl).length >= 3).length >= 7, "mindestens 3 Teile in den meisten Bereichen");
-ok(S.filter((s) => s.xp === 0).length >= 3 && S.filter((s) => s.xp === 0).length <= 5, "ein paar Orte von Anfang an frei");
-ok(Math.max(...O.map((o) => o.xp)) <= 1500 && Math.max(...S.map((o) => o.xp)) <= 1500, "Freischaltungen bleiben erreichbar (höchstens 1500)");
+ok(SB.filter((s) => s.xp === 0).length >= 3 && SB.filter((s) => s.xp === 0).length <= 5, "ein paar Orte von Anfang an frei");
+ok(Math.max(...OB.map((o) => o.xp)) <= 1500 && Math.max(...SB.map((o) => o.xp)) <= 1500, "Grundteile bleiben erreichbar (höchstens 1500)");
 // langsam und gleichmäßig: nie viele Teile auf einmal, die ersten kommen nach ca. 30 Punkten (3 richtige Aufgaben)
 {
-  const xs = O.filter((o) => o.xp > 0).map((o) => o.xp).sort((a, b) => a - b);
+  const xs = OB.filter((o) => o.xp > 0).map((o) => o.xp).sort((a, b) => a - b);
   ok(xs[0] >= 30 && xs[0] <= 60, "das erste neue Teil kommt nach etwa 3 richtigen Aufgaben: " + xs[0]);
   ok(xs.every((v, i) => i === 0 || v - xs[i - 1] <= 100), "keine großen Lücken beim Freischalten");
-  ok(O.filter((o) => o.xp > 0 && o.xp <= 300).length <= 12, "in den ersten 300 Punkten höchstens 12 neue Teile");
+  ok(OB.filter((o) => o.xp > 0 && o.xp <= 300).length <= 12, "in den ersten 300 Punkten höchstens 12 neue Teile");
 }
+
+// ---- Themen-Sets: 100 neue Teile und 10 neue Orte, nach Datum und ab dem Punktestand beim Update ----
+ok(C.THEMES.length === 5 && OT.length === 100 && ST.length === 10, `5 Sets, 100 neue Teile, 10 neue Orte: ${C.THEMES.length}/${OT.length}/${ST.length}`);
+ok(C.THEMES.every((t) => /^\d{4}-\d{2}-\d{2}$/.test(t.from) && OT.filter((o) => o.theme === t.id).length === 20 && ST.filter((o) => o.theme === t.id).length === 2), "jedes Set: 20 Teile, 2 Orte, Datum");
+ok(C.THEMES.every((t, i) => i === 0 || t.from > C.THEMES[i - 1].from), "Sets kommen nacheinander");
+ok(new Set(OT.map((o) => o.name)).size === OT.length, "Namen der neuen Teile sind einmalig");
+for (const o of OT) {
+  const base = o.id.slice(0, o.id.lastIndexOf("_"));
+  ok(C.mochi("calm", [o.id], 150) !== C.mochi("calm", [base], 150), "Set-Teil hat andere Farben als das Grundteil: " + o.id);
+  ok(o.slot === C.SLOT_OF[base] && o.d > 0 && o.from, "Set-Teil: Platz, Punkte, Datum " + o.id);
+}
+for (const o of ST) ok(C.scene(o.id) !== C.scene(o.id.slice(0, o.id.lastIndexOf("_"))), "Set-Ort hat andere Farben: " + o.id);
+// Punkte zählen ab dem Stand beim Update
+C.rebase(0);
+ok(Math.min(...OT.map((o) => o.xp)) <= 100 && Math.max(...OT.map((o) => o.xp)) <= 7000, "Neue Sets von 0 an: erstes Teil früh, letztes erreichbar");
+C.rebase(3000);
+ok(OT.every((o) => o.xp >= 3050) && ST.every((o) => o.xp >= 3000) && OB.every((o) => o.xp <= 1500), "Mit 3000 Punkten beim Update ist von den neuen Sets nichts frei, Altes bleibt frei");
+C.rebase(0);
+const dxs = OT.concat(ST).map((o) => o.d).sort((a, b) => a - b);
+ok(dxs.every((v, i) => i === 0 || v - dxs[i - 1] <= 300), "gleichmäßig verteilt, keine großen Lücken");
 // Orte
 for (const s of S) {
   const svg = C.scene(s.id);
