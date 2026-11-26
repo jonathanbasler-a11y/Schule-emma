@@ -41,6 +41,10 @@
     ["Ein Hund wird meistens 10 bis 15 Jahre alt.", true], ["Hunde sind gleichwarm, ihre Körpertemperatur liegt zwischen 38 und 39 Grad.", true],
     ["Der Hund kann nur an den Pfoten schwitzen und kühlt sich durch Hecheln ab.", true], ["Hunde schwitzen am ganzen Körper wie wir Menschen.", false],
     ["Der Hund kann mit seinem Hörsinn auch sehr hohe Töne wahrnehmen.", true], ["Der Hund sieht besser als der Mensch und braucht die Nase kaum.", false],
+    ["Das Fell des Hundes besteht aus längeren Deckhaaren und kurzen Wollhaaren.", true], ["Das Fell schützt den Hund gut vor Kälte.", true],
+    ["Ein Hund erkennt an Körperhaltung, Körpergeruch und Gesichtsausdruck, ob sich ein Mensch freut oder traurig ist.", true],
+    ["Manche Hunde können Krankheiten beim Menschen erriechen, wenn sie darauf trainiert wurden.", true], ["Hunde können sich überhaupt nicht in Menschen einfühlen.", false],
+    ["Vorder- und Hinterbeine sind über Schulterblätter und Beckenknochen mit dem Rumpfskelett verbunden.", true],
   ];
   const LUECKEN = [
     ["Der Hund hat ein ___.", ["Raubtiergebiss"], "Raubtiergebiss, Pflanzenfressergebiss, Milchgebiss"],
@@ -57,6 +61,8 @@
     ["Der Hund hat ein Skelett aus Knochen, deshalb ist er ein ___.", ["Wirbeltier"], "Wirbeltier, Weichtier, Insekt"],
     ["Der Mensch tritt mit der ganzen Fußsohle auf, er ist ein ___.", ["Sohlengänger"], "Sohlengänger, Zehengänger, Hetzjäger"],
     ["Hunde sind ___, ihre Körpertemperatur bleibt gleich.", ["gleichwarm"], "gleichwarm, wechselwarm, kaltblütig"],
+    ["Das Fell des Hundes besteht aus längeren ___ und kurzen Wollhaaren.", ["Deckhaaren", "Deckhaare"], "Deckhaaren, Schnurrhaaren, Stachelhaaren"],
+    ["Bei Hitze hängt der Hund die Zunge heraus und ___.", ["hechelt"], "hechelt, schwitzt, friert"],
     ["Der Hund ist ein ___, er hört sehr hohe Töne, die wir nicht mehr hören.", ["Ohrentier"], "Ohrentier, Nasentier, Zehengänger"],
     ["Mit seiner Spürnase hilft der Hund der Polizei als ___.", ["Spürhund", "Suchhund"], "Spürhund, Schlittenhund, Hütehund"],
   ];
@@ -206,6 +212,20 @@
     ["Wann suchten Wölfe schon die Nähe der Menschen?", "Vor mehr als 30 000 Jahren in der Steinzeit", ["Vor 300 Jahren", "Vor 50 Jahren", "Erst im Mittelalter"]],
     ["Wie alt wird ein Hund meistens?", "10 bis 15 Jahre", ["2 bis 4 Jahre", "30 bis 40 Jahre", "50 Jahre"]],
     ["Wie verständigt sich der Hund mit anderen?", "Durch Körpersprache und Laute", ["Nur durch Bellen", "Nur durch Gerüche", "Gar nicht"]],
+    ["Wer im Rudel bekommt Junge?", "Nur Leitwolf und Leitwölfin", ["Alle Weibchen", "Alle Wölfe", "Nur die jüngsten Tiere"]],
+    ["Wer bestimmt im Rudel, wann gejagt wird?", "Leitwolf und Leitwölfin", ["Das schwächste Tier", "Die Jungtiere", "Alle abwechselnd"]],
+    ["Was taten die Menschen in der Steinzeit mit Wolfsjungen?", "Sie nahmen sie bei sich auf und zähmten sie", ["Sie jagten sie", "Sie ließen sie frei laufen", "Sie verkauften sie"]],
+    ["Wobei halfen die gezähmten Wölfe den Menschen wahrscheinlich?", "Beim Aufspüren von Tieren bei der Jagd und als Schutz vor gefährlichen Wildtieren", ["Beim Schlittenziehen", "Beim Ackerbau", "Beim Bau von Häusern"]],
+    ["Wie nennt man Nachkommen einer Verpaarung von Wolf und Hund?", "Wolfshunde", ["Rassehunde", "Wildhunde", "Schakale"]],
+    ["Was zeigen Wolfshunde meist?", "Mehr Verhaltensweisen des Wolfs als andere Rassen", ["Gar keine Verhaltensweisen des Wolfs", "Nur Verhaltensweisen des Hundes", "Nur Angstverhalten"]],
+    ["Welcher Wolf lebt in sehr kalten nördlichen Regionen der Erde?", "Der Polarwolf", ["Der Grauwolf", "Der Wolfshund", "Der Schakal"]],
+    ["Welcher Wolf lebt in Wäldern und Graslandschaften Europas und Asiens?", "Der Grauwolf", ["Der Polarwolf", "Der Wolfshund", "Der Fuchs"]],
+    ["Welcher Wolf wird bis zu 80 Kilogramm schwer?", "Der Polarwolf", ["Der Grauwolf", "Der Wolfshund", "Keiner"]],
+    ["Wie schwer wird der Grauwolf bis zu?", "Bis zu 50 Kilogramm", ["Bis zu 5 Kilogramm", "Bis zu 150 Kilogramm", "Bis zu 500 Kilogramm"]],
+    ["Welcher Wolf hat dichteres Fell, kleine runde Ohren und eine kurze Schnauze?", "Der Polarwolf", ["Der Grauwolf", "Der Wolfshund", "Alle gleich"]],
+    ["Wovon ernährt sich der Polarwolf?", "Von Mäusen, Hasen, Lemmingen und Rentieren", ["Von Rehen und Wildschweinen", "Nur von Pflanzen", "Nur von Fischen"]],
+    ["Wovon ernährt sich der Grauwolf?", "Von Rehen, Hirschen, Hasen und Wildschweinen, manchmal auch von Schafen und Ziegen", ["Nur von Lemmingen", "Nur von Beeren", "Nur von Insekten"]],
+    ["Wofür nutzt der Mensch Hunde mit besonderen Fähigkeiten?", "Zum Beispiel als Polizeihunde, Jagdhunde, Wach- und Schutzhunde oder Hütehunde", ["Nur als Zugtiere", "Nur zum Essen", "Gar nicht"]],
     ["Wie markiert der Hund auffallende Stellen in seinem Revier?", "Mit Urin", ["Mit Kot", "Mit Farbe", "Mit Haaren"]],
   ];
   const WOLF_STIMMT = [
@@ -216,6 +236,9 @@
     ["Der Hund versteht sich durch Körpersprache.", true], ["Der Hund markiert auffallende Stellen seines Reviers mit Urin.", true],
     ["Wölfe jagen ihre Beute über lange Strecken, bis sie erschöpft ist.", true], ["Alle Hunde gehören zu verschiedenen Arten.", false],
     ["Durch Züchtung sind viele unterschiedliche Hunderassen entstanden.", true], ["Mit Imponierverhalten wollen Wölfe beeindrucken.", true],
+    ["Im Wolfsrudel bekommen alle Wölfe Junge.", false], ["Der Polarwolf wiegt bis zu 80 Kilogramm, der Grauwolf bis zu 50 Kilogramm.", true],
+    ["Der Polarwolf hat dichteres Fell und kleine, runde Ohren.", true], ["Der Grauwolf lebt in sehr kalten nördlichen Regionen.", false],
+    ["Wolfshunde zeigen meist mehr Verhaltensweisen des Wolfs als andere Rassen.", true], ["Die ersten Wölfe suchten erst vor 300 Jahren die Nähe des Menschen.", false],
   ];
   const WOLF_LUECKEN = [
     ["Der Wolf ist die Stammform aller ___.", ["Haushunde", "Haushund"], "Haushunde, Füchse, Katzen"],
@@ -229,6 +252,104 @@
     ["Wer sich dem ranghöheren Tier unterwirft, zeigt ___.", ["Demutsverhalten"], "Demutsverhalten, Imponierverhalten, Drohverhalten"],
     ["Ein Wolf, der die Ohren anlegt, knurrt und die Zähne zeigt, zeigt ___.", ["Drohverhalten"], "Drohverhalten, Demutsverhalten, Imponierverhalten"],
     ["Ein Wolf ist ein ___, weil er seine Beute über lange Strecken verfolgt.", ["Hetzjäger"], "Hetzjäger, Schleichjäger, Nasentier"],
+    ["Der ___ lebt in sehr kalten nördlichen Regionen und wiegt bis zu 80 Kilogramm.", ["Polarwolf"], "Polarwolf, Grauwolf, Wolfshund"],
+    ["Der ___ lebt in Wäldern und Graslandschaften Europas und Asiens.", ["Grauwolf"], "Grauwolf, Polarwolf, Wolfshund"],
+    ["Die Nachkommen von Wolf und Hund heißen ___.", ["Wolfshunde", "Wolfshund"], "Wolfshunde, Mischlinge, Rudel"],
+    ["Nur ___ und Leitwölfin bekommen Junge.", ["Leitwolf"], "Leitwolf, Rüde, Rudel"],
+  ];
+
+  // ---------- Daten: Körpersprache (Buch S. 25 und 27) ----------
+  const POSEN = { A: "Imponierverhalten", B: "Drohverhalten", C: "Angstverhalten" };
+  const KOERPER_FAKTEN = [
+    ["Woran erkennt man beim Wolf das Imponierverhalten?", "Er stellt sich aufrecht hin und hält die Rute erhoben", ["Er legt sich auf den Rücken", "Er zieht die Rute ein", "Er knurrt und zeigt die Zähne"]],
+    ["Warum zeigen die Leitwölfe Imponierverhalten?", "Sie wollen größer erscheinen und beeindrucken", ["Sie haben Angst", "Sie wollen schlafen", "Sie wollen sich verstecken"]],
+    ["Woran erkennt man beim Wolf das Drohverhalten?", "Der Körper versteift sich, die Rute ist waagerecht, die Ohren sind angelegt, er knurrt und zeigt die Zähne", ["Er legt sich auf den Rücken und zeigt die Kehle", "Er hält die Rute hoch und stellt sich aufrecht hin", "Er wedelt und springt herum"]],
+    ["Woran erkennt man beim Wolf das Demutsverhalten?", "Er zieht die Rute ein, legt sich auf den Rücken und zeigt seine Kehle", ["Er hält die Rute senkrecht nach oben", "Er knurrt und zeigt die Zähne", "Er stellt sich aufrecht hin"]],
+    ["Was bewirkt das Demutsverhalten im Rudel?", "Der schwächere Wolf unterwirft sich, deshalb gibt es selten blutige Kämpfe", ["Es gibt immer blutige Kämpfe", "Der schwächere Wolf wird Leitwolf", "Das Rudel löst sich auf"]],
+    ["Was zeigt ein Wolf, der Angst hat und sich einem ranghöheren Tier unterwirft?", "Demutsverhalten (Angstverhalten)", ["Imponierverhalten", "Drohverhalten", "Jagdverhalten"]],
+    ["Wie hält der Wolf beim Drohverhalten die Rute?", "Waagerecht", ["Senkrecht nach oben", "Eingezogen zwischen den Beinen", "Eingerollt auf dem Rücken"]],
+    ["Wie hält der Leitwolf beim Imponierverhalten die Rute?", "Erhoben", ["Eingezogen", "Waagerecht", "Gar nicht"]],
+    ["Woran kann man bei einem Hund die Stimmung erkennen?", "An der Stellung von Ohren und Rute und an seinen Lauten", ["Nur an der Größe", "Nur an der Fellfarbe", "Gar nicht"]],
+    ["Welche Stimmung zeigt ein Hund, der den Vorderkörper nach unten drückt und Hinterteil und Rute nach oben streckt?", "Spielaufforderung", ["Furcht", "Anspannung", "Entspannung"]],
+    ["Wie zeigt ein Hund Furcht?", "Er macht sich klein und klemmt die Rute ein", ["Er stellt sich aufrecht hin und wedelt hoch", "Er streckt Hinterteil und Rute nach oben", "Er liegt locker mit hängenden Ohren"]],
+    ["Wie wirkt ein Hund, der entspannt ist?", "Locker, mit ruhiger Haltung", ["Steif und angespannt", "Geduckt mit eingeklemmter Rute", "Mit gesträubtem Fell"]],
+    ["Welche sechs Stimmungen kann man auf den Bildern der Körperhaltung bei Hunden unterscheiden?", "Entspannung, Freude, Anspannung, Unterwerfung, Furcht und Spielaufforderung", ["Nur Freude und Wut", "Hunger, Durst und Schlaf", "Nur Angst und Mut"]],
+  ];
+  const KOERPER_STIMMT = [
+    ["Beim Imponierverhalten macht sich der Wolf größer.", true], ["Beim Drohverhalten legt der Wolf die Ohren an und zeigt die Zähne.", true],
+    ["Beim Demutsverhalten zeigt der Wolf dem ranghöheren Tier seine Kehle.", true], ["Beim Drohverhalten hält der Wolf die Rute eingezogen.", false],
+    ["Auf Bild A der Wölfe hält der Wolf die Rute erhoben (Imponierverhalten).", true], ["Auf Bild C zeigt der Wolf Angstverhalten.", true],
+    ["Der Hund verständigt sich durch Körpersprache.", true], ["Die Stellung der Ohren und der Rute verrät etwas über die Stimmung des Hundes.", true],
+    ["Ein Hund mit eingeklemmter Rute und geducktem Körper ist entspannt und fröhlich.", false], ["Durch das Demutsverhalten kommt es selten zu blutigen Kämpfen im Rudel.", true],
+  ];
+
+  // ---------- Daten: Bedürfnisse und Hundehaltung (Buch S. 22) ----------
+  const BEDARF_FAKTEN = [
+    ["Wie alt werden Hunde meistens?", "10 bis 15 Jahre", ["2 bis 4 Jahre", "30 bis 40 Jahre", "50 Jahre"]],
+    ["Was ist der Hund wie seine Wildform, der Wolf?", "Ein Rudeltier, das nicht gern allein ist", ["Ein Einzelgänger", "Ein Nachttier, das allein jagt", "Ein Winterschläfer"]],
+    ["Wozu braucht ein Hund eine gute Erziehung?", "Damit das Zusammenleben im Alltag funktioniert", ["Damit er schneller wächst", "Damit er weniger frisst", "Damit er nicht mehr bellen kann"]],
+    ["Was braucht ein Hund, damit er gesund bleibt und sich wohlfühlt?", "Geeignetes Futter und einen festen Schlafplatz", ["Nur einen Garten", "Nur Spielzeug", "Nur Fleisch vom Tisch"]],
+    ["Was sollte regelmäßig beim Tierarzt gemacht werden?", "Untersuchen, entwurmen und impfen", ["Nur Fell scheren", "Nichts, Hunde brauchen keinen Tierarzt", "Zähne ziehen"]],
+    ["Warum brauchen die meisten Hunde viel Platz und Möglichkeiten, sich zu bewegen?", "Sie sind gute und ausdauernde Läufer", ["Sie sind sehr faul", "Sie können nicht laufen", "Sie schlafen den ganzen Tag"]],
+    ["Was brauchen besonders junge Hunde?", "Ausreichend Kontakt zu anderen Hunden und Menschen, um ihr Sozialverhalten zu trainieren", ["Möglichst viel Ruhe allein", "Nur Futter", "Keinen Kontakt zu anderen Hunden"]],
+    ["Was ändert sich bei alten Hunden?", "Die Sinnesleistungen lassen nach und sie brauchen mehr Ruhe", ["Sie werden schneller und wilder", "Sie brauchen keinen Auslauf mehr", "Sie sehen und hören besser"]],
+    ["Welche Kosten entstehen bei der Hundehaltung?", "Zum Beispiel für Leine, Geschirr, Futter, Fellpflege, Spielzeug, Tierarzt und Hundesteuer", ["Nur für das Futter", "Gar keine", "Nur die Anschaffung"]],
+    ["Was kann man in der Hundeschule mit dem Hund üben?", "Verschiedene Alltagssituationen, zum Beispiel entspannt an der Leine laufen", ["Nur Kunststücke für den Zirkus", "Nur Jagen", "Nichts, der Hund lernt dort nicht"]],
+    ["Was sollte man vor dem Hundekauf klären?", "Ob Hundehaltung erlaubt ist und ob jemand in der Familie gegen Tierhaare allergisch ist", ["Welche Farbe das Fell hat", "Nur den Preis", "Ob der Hund bellt"]],
+    ["Warum ist ein Hund kein Spielzeug?", "Er ist ein Lebewesen, und man übernimmt Verantwortung für ihn", ["Weil er zu teuer ist", "Weil er zu schwer ist", "Weil er sprechen kann"]],
+    ["Woher kann man einen Hund bekommen?", "Aus der Hundezucht oder aus dem Tierheim", ["Nur aus dem Wald", "Nur aus dem Zoo", "Nur aus dem Supermarkt"]],
+    ["Was gehört zur Hundehaltung bei jedem Wetter dazu?", "Tägliche Beschäftigung und Auslauf", ["Den Hund im Haus lassen", "Nur Füttern", "Nur Streicheln"]],
+    ["Wie nennt man einen männlichen Hund?", "Rüde", ["Hündin", "Welpe", "Leitwölfin"]],
+  ];
+  const BEDARF_STIMMT = [
+    ["Ein Hund ist ein Rudeltier und möchte nicht gern allein sein.", true], ["Ein Hund braucht keine Erziehung.", false],
+    ["Hunde sollten regelmäßig tierärztlich untersucht, entwurmt und geimpft werden.", true], ["Hunde der meisten Rassen sind gute und ausdauernde Läufer.", true],
+    ["Bei alten Hunden lassen die Sinnesleistungen nach.", true], ["Zur Hundehaltung gehören auch Kosten für Futter, Tierarzt und Hundesteuer.", true],
+    ["Ein Hund ist ein Spielzeug und braucht keine Verantwortung.", false], ["Vor dem Hundekauf sollte man klären, ob jemand in der Familie gegen Tierhaare allergisch ist.", true],
+    ["Man kann einen Hund aus der Hundezucht oder aus dem Tierheim holen.", true], ["Junge Hunde brauchen keinen Kontakt zu anderen Hunden.", false],
+    ["Ein Hund braucht nur bei schönem Wetter Auslauf.", false],
+  ];
+  const BEDARF_LUECKEN = [
+    ["Hunde werden meistens 10 bis ___ Jahre alt.", ["15"], "15, 5, 30"],
+    ["Wie sein Vorfahre, der Wolf, ist der Hund ein ___ und nicht gern allein.", ["Rudeltier"], "Rudeltier, Einzelgänger, Nachttier"],
+    ["Ein männlicher Hund heißt ___.", ["Rüde"], "Rüde, Welpe, Hündin"],
+    ["Hunde sollten regelmäßig geimpft und ___ werden.", ["entwurmt"], "entwurmt, rasiert, gebadet"],
+    ["Zur Hundehaltung gehören Kosten für Futter, Tierarzt und ___.", ["Hundesteuer"], "Hundesteuer, Kfz-Steuer, Eintrittsgeld"],
+    ["Einen Hund zu halten bedeutet, ___ für ihn zu übernehmen.", ["Verantwortung"], "Verantwortung, Spielzeug, Hunger"],
+    ["Bei alten Hunden lassen die ___ nach.", ["Sinnesleistungen", "Sinnesleistung"], "Sinnesleistungen, Krallen, Zähne"],
+    ["Einen Hund bekommt man aus der Hundezucht oder aus dem ___.", ["Tierheim"], "Tierheim, Zoo, Wald"],
+  ];
+
+  // ---------- Daten: Der Geruchssinn (Buch S. 23) ----------
+  const GERUCH_ZAHLEN = [
+    ["Wie viele <b>Millionen Riechsinneszellen</b> hat ein Hund meistens?", 220, "Im Buch steht: Hunde haben meist 220 Millionen Riechsinneszellen."],
+    ["Bis zu wie vielen <b>Millionen Riechsinneszellen</b> hat ein Mensch?", 10, "Der Mensch hat bis zu 10 Millionen."],
+    ["Wie oft kann ein Hund bis zu in der <b>Minute</b> durch die Nasenlöcher einatmen?", 300, "Der Hund kann bis zu 300-mal in der Minute einatmen (Schnüffelatmung)."],
+    ["Wie viele <b>Millionen Riechsinneszellen</b> hat ein Hund mehr als ein Mensch? (220 und 10 Millionen)", 210, "Rechne 220 − 10."],
+    ["Der Hund hat 220 Millionen Riechsinneszellen, der Mensch 10 Millionen. Wie viele <b>Millionen</b> sind es zusammen?", 230, "Rechne 220 + 10."],
+    ["Der Hund kann bis zu 300-mal in der Minute einatmen. Wie oft ist das in <b>2 Minuten</b>?", 600, "Rechne 300 · 2."],
+    ["Der Hund kann bis zu 300-mal in der Minute einatmen. Wie oft ist das in <b>einer halben Minute</b> (30 Sekunden)?", 150, "Rechne 300 : 2."],
+    ["Der Hund kann bis zu 300-mal in der Minute einatmen. Wie oft ist das in <b>einer Sekunde</b>?", 5, "Eine Minute hat 60 Sekunden: 300 : 60."],
+    ["Der Hund kann bis zu 300-mal in der Minute einatmen. Wie oft ist das in <b>10 Sekunden</b>?", 50, "10 Sekunden sind ein Sechstel einer Minute: 300 : 6."],
+  ];
+  const GERUCH_FAKTEN = [
+    ["Wo sitzen die Riechsinneszellen?", "In der Riechschleimhaut in der Nasenhöhle", ["In der Zunge", "Im Ohr", "In den Pfoten"]],
+    ["Wie groß ist die Riechschleimhaut beim Hund?", "So groß wie ein DIN-A4-Blatt", ["So groß wie eine Briefmarke", "So groß wie ein Fußball", "So groß wie ein Tisch"]],
+    ["Wie groß ist die Riechschleimhaut beim Menschen?", "Ungefähr so groß wie eine Briefmarke", ["So groß wie ein DIN-A4-Blatt", "So groß wie ein Tisch", "So groß wie eine Hand"]],
+    ["Wie atmet der Hund beim Schnüffeln aus?", "Seitlich durch die Nasenlöcher", ["Durch das Maul", "Genauso wie er einatmet", "Durch die Ohren"]],
+    ["Warum ist das seitliche Ausatmen beim Schnüffeln gut?", "Der erschnüffelte Geruch wird nicht verdünnt und die Riechsinneszellen werden ständig mit neuen Gerüchen versorgt", ["Der Hund kann dann lauter bellen", "Der Hund wird schneller müde", "Der Hund kann dann besser sehen"]],
+    ["Wie nennt man die besondere Atemtechnik beim Schnüffeln?", "Schnüffelatmung", ["Hecheln", "Schnarchen", "Pfeifen"]],
+    ["Warum haben Hunderassen mit verkürzter Schnauze oft eine schlechtere Riechleistung?", "Ihre Nasenöffnungen sind oft verengt", ["Sie haben keine Nase", "Sie riechen besser als alle anderen", "Sie haben mehr Riechzellen"]],
+    ["Warum ist der Hund ein Nasentier?", "Wegen seines extrem feinen Geruchssinns", ["Weil er eine lange Nase hat", "Weil er nur Nasen mag", "Weil er nichts hört"]],
+    ["Wie nimmt der Hund die Umwelt hauptsächlich wahr?", "Über die Nase", ["Über die Augen", "Über die Ohren", "Über die Haut"]],
+    ["Wofür setzt der Mensch den Geruchssinn des Hundes gezielt ein?", "Zum Beispiel bei Polizeihunden, bei der Suche nach Vermissten und beim Erriechen von Krankheiten", ["Zum Schlittenziehen", "Zum Bewachen von Geld", "Zum Hüten von Schafen"]],
+    ["Welche Gerüche kann der Hund gleichzeitig aufnehmen?", "Gerüche aus verschiedenen Richtungen", ["Nur Gerüche von vorne", "Nur Blumengerüche", "Keine"]],
+  ];
+  const GERUCH_STIMMT = [
+    ["Hunde haben viel mehr Riechsinneszellen als Menschen.", true], ["Die Riechschleimhaut des Hundes ist so groß wie eine Briefmarke.", false],
+    ["Der Hund atmet beim Schnüffeln seitlich durch die Nasenlöcher aus.", true], ["Der Hund kann bis zu 300-mal in der Minute einatmen.", true],
+    ["Kurzschnauzrassen wie der Mops haben oft verengte Nasenöffnungen.", true], ["Der Hund nimmt die Umwelt hauptsächlich über die Augen wahr.", false],
+    ["Die Riechsinneszellen sitzen in der Riechschleimhaut der Nasenhöhle.", true], ["Der Mensch hat 220 Millionen Riechsinneszellen.", false],
   ];
 
   // ---------- Zeichnungen ----------
@@ -251,6 +372,29 @@
       + g("zehen", `<path d="M94 202 L124 203 L124 209 L92 209 Z"/><path d="M104 203 V209 M114 203 V209" fill="none"/>`)
       + `<g data-teil="wirbel" fill="none" stroke="${hl === "wirbel" ? RED : LINE}" stroke-linecap="round"><path d="M250 72 Q205 50 150 60 Q110 66 88 70 Q60 72 40 100" stroke="${spine}" stroke-width="${hl === "wirbel" ? 11 : 9}"/><path d="M250 72 Q205 50 150 60 Q110 66 88 70 Q60 72 40 100" stroke="${hl === "wirbel" ? PINK : BONE}" stroke-width="5" stroke-dasharray="5 3"/></g>`
       + g("schaedel", `<path d="M258 50 Q284 40 304 58 L314 74 Q314 86 298 88 L272 90 Q254 86 254 68 Z"/><path d="M272 90 Q296 102 312 82" fill="none"/><circle cx="280" cy="60" r="3.2" fill="${hl === "schaedel" ? RED : LINE}"/>`)
+      + `</svg>`;
+  }
+  // Drei Wölfe von der Seite (Kopf links): A Imponierverhalten, B Drohverhalten, C Angstverhalten
+  function wolfSvg(hl) {
+    const FUR = "#b9a99a", DARK = "#6f6155";
+    const wolf = (id, ox, o) => {
+      const mark = hl === id, fur = mark ? "#f3b3bb" : FUR, line = mark ? "#e0364d" : DARK, w = mark ? 3 : 1.8;
+      const leg = (x, y1, y2, x2) => `<path d="M${ox + x} ${y1} L${ox + (x2 == null ? x : x2)} ${y2}" stroke="${line}" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M${ox + x} ${y1} L${ox + (x2 == null ? x : x2)} ${y2}" stroke="${fur}" stroke-width="5.5" stroke-linecap="round" fill="none"/>`;
+      return `<g data-pose="${id}" fill="${fur}" stroke="${line}" stroke-width="${w}" stroke-linejoin="round">`
+        + leg(56, o.by + 22, 138, o.fx) + leg(70, o.by + 22, 138, o.fx + 12) + leg(108, o.by + 22, 138, o.hx) + leg(122, o.by + 18, 138, o.hx + 12)
+        + `<path class="tail" d="M${ox + 126} ${o.by + 6} Q${ox + o.tx1} ${o.ty1} ${ox + o.tx2} ${o.ty2}" fill="none" stroke="${line}" stroke-width="11" stroke-linecap="round"/><path d="M${ox + 126} ${o.by + 6} Q${ox + o.tx1} ${o.ty1} ${ox + o.tx2} ${o.ty2}" fill="none" stroke="${fur}" stroke-width="7" stroke-linecap="round"/>`
+        + `<path d="M${ox + 46} ${o.by} Q${ox + 70} ${o.by - 20} ${ox + 110} ${o.by - 15} Q${ox + 128} ${o.by - 12} ${ox + 130} ${o.by + 4} Q${ox + 127} ${o.by + 22} ${ox + 110} ${o.by + 24} L${ox + 56} ${o.by + 24} Q${ox + 40} ${o.by + 18} ${ox + 46} ${o.by} Z"/>`
+        + `<path d="M${ox + 46} ${o.by - 6} L${ox + o.hx0 + 2} ${o.hy + 2} L${ox + o.hx0 + 10} ${o.hy + 30} L${ox + 62} ${o.by + 20} Z"/>`
+        + `<path d="M${ox + o.hx0 - 24} ${o.hy + 14} L${ox + o.hx0 - 2} ${o.hy - 4} L${ox + o.hx0 + 22} ${o.hy + 2} L${ox + o.hx0 + 14} ${o.hy + 26} L${ox + o.hx0 - 14} ${o.hy + 26} Z"/>`
+        + (o.teeth ? `<path d="M${ox + o.hx0 - 22} ${o.hy + 22} l4 6 l4 -6 M${ox + o.hx0 - 10} ${o.hy + 24} l4 6 l4 -6" fill="#fff" stroke="${DARK}" stroke-width="1.2"/>` : "")
+        + `<path class="ear" d="M${ox + o.ear[0]} ${o.ear[1]} L${ox + o.ear[2]} ${o.ear[3]} L${ox + o.ear[4]} ${o.ear[5]} Z"/>`
+        + `<circle cx="${ox + o.hx0 - 2}" cy="${o.hy + 8}" r="2.2" fill="${DARK}" stroke="none"/>`
+        + `<text x="${ox + 70}" y="150" text-anchor="middle" font-size="14" font-weight="700" fill="${DARK}" stroke="none">${id}</text></g>`;
+    };
+    return `<svg class="nwfig wolf" viewBox="0 0 470 156" role="img" aria-label="Drei Wölfe mit Körpersprache: A, B und C">`
+      + wolf("A", 0, { by: 62, fx: 54, hx: 110, hx0: 26, hy: 28, tx1: 150, ty1: 44, tx2: 146, ty2: 14, ear: [20, 32, 28, 10, 38, 32], teeth: false })
+      + wolf("B", 155, { by: 78, fx: 52, hx: 112, hx0: 22, hy: 66, tx1: 160, ty1: 80, tx2: 168, ty2: 82, ear: [28, 66, 46, 62, 36, 78], teeth: true })
+      + wolf("C", 310, { by: 94, fx: 50, hx: 114, hx0: 22, hy: 90, tx1: 138, ty1: 126, tx2: 114, ty2: 132, ear: [28, 90, 46, 94, 34, 102], teeth: false })
       + `</svg>`;
   }
   // Gebiss des Hundes von der Seite (Schnauze links), Zähne einer Art rot markiert
@@ -393,6 +537,56 @@
     return textTask({ q: `Ergänze: <span class="nwsatz">${s.replace("___", '<span class="kbx">?</span>')}</span>${lvl === 1 ? `<br><small>Wortkasten: ${box}</small>` : ""}`, accept: ans, hints: [`Wortkasten: ${box}`, "Das Wort beginnt mit " + ans[0][0].toUpperCase() + "."], solution: ans[0] });
   });
 
+  // ---------- Generatoren: Körpersprache ----------
+  gen("bio.koerper.bild", "koerper", "Körpersprache des Wolfs (Bilder A, B, C)", (r, lvl) => {
+    const L = r.pick(["A", "B", "C"]), name = POSEN[L];
+    const hints = ["A: der Wolf steht aufrecht und hält die Rute hoch. B: der Körper ist steif, die Rute waagerecht, die Zähne sind zu sehen. C: der Wolf macht sich klein und klemmt die Rute ein.", "Imponierverhalten = beeindrucken, Drohverhalten = drohen, Angstverhalten = große Angst."];
+    const fig = `<div class="nwfigw">${wolfSvg()}</div>`;
+    if (lvl === 3) return textTask({ q: `${fig}Wie heißt das Verhalten des Wolfs auf <b>Bild ${L}</b>? (zum Beispiel: Drohverhalten)`, accept: [name].concat(L === "C" ? ["Demutsverhalten"] : []), hints, solution: name });
+    if (lvl === 2) { const o = opts(r, name, Object.values(POSEN).concat(["Spielverhalten"]), 4); return choiceTask(Object.assign({ q: `${fig}Welches Verhalten zeigt der Wolf auf <b>Bild ${L}</b>?`, hints, solution: name }, o)); }
+    const o = opts(r, "Bild " + L, ["Bild A", "Bild B", "Bild C"], 3);
+    return choiceTask(Object.assign({ q: `${fig}Auf welchem Bild zeigt der Wolf <b>${name}</b>?`, hints, solution: "Bild " + L }, o));
+  });
+  gen("bio.koerper.fakt", "koerper", "Körpersprache: Fragen", (r) => {
+    const [q, right, wrong] = r.pick(KOERPER_FAKTEN);
+    const o = opts(r, right, [right].concat(wrong));
+    return choiceTask(Object.assign({ q, hints: ["Lies im Buch nach: „Verständigung“ (Seite 25) und „Körpersprache des Hundes“ (Seite 27).", "Imponieren: aufrecht und Rute hoch. Drohen: steif, Rute waagerecht, Zähne zeigen. Demut: Rute einziehen, auf den Rücken legen."], solution: right }, o));
+  });
+  gen("bio.koerper.stimmt", "koerper", "Körpersprache: Stimmt das?", (r) => {
+    const [s, ok] = r.pick(KOERPER_STIMMT);
+    return choiceTask({ q: `Stimmt die Aussage? <span class="nwsatz">${s}</span>`, options: ["stimmt", "stimmt nicht"], correct: ok ? 0 : 1, hints: ["Denk an das Buch, Seite 25 und 27, und an die drei Wölfe A, B und C.", ok ? "Diese Aussage steht so im Buch." : "Tipp: Hier ist etwas verdreht. Was müsste richtig heißen?"], solution: ok ? "stimmt" : "stimmt nicht" });
+  });
+
+  // ---------- Generatoren: Bedürfnisse und Hundehaltung ----------
+  gen("bio.bedarf.fakt", "bedarf", "Bedürfnisse und Hundehaltung: Fragen", (r) => {
+    const [q, right, wrong] = r.pick(BEDARF_FAKTEN);
+    const o = opts(r, right, [right].concat(wrong));
+    return choiceTask(Object.assign({ q, hints: ["Lies im Buch nach: „Bedürfnisse des Hundes“, „Hundehaltung“ und „Hundekauf“ (Seite 22).", "Ein Hund ist ein Lebewesen: Er braucht Futter, einen Schlafplatz, Erziehung, Auslauf, Gesellschaft und den Tierarzt."], solution: right }, o));
+  });
+  gen("bio.bedarf.stimmt", "bedarf", "Hundehaltung: Stimmt das?", (r) => {
+    const [s, ok] = r.pick(BEDARF_STIMMT);
+    return choiceTask({ q: `Stimmt die Aussage? <span class="nwsatz">${s}</span>`, options: ["stimmt", "stimmt nicht"], correct: ok ? 0 : 1, hints: ["Denk an das Buch, Seite 22.", ok ? "Diese Aussage steht so im Buch." : "Tipp: Hier ist etwas verdreht. Was müsste richtig heißen?"], solution: ok ? "stimmt" : "stimmt nicht" });
+  });
+  gen("bio.bedarf.luecke", "bedarf", "Hundehaltung: Lückentext", (r, lvl) => {
+    const [s, ans, box] = r.pick(BEDARF_LUECKEN);
+    return textTask({ q: `Ergänze: <span class="nwsatz">${s.replace("___", '<span class="kbx">?</span>')}</span>${lvl === 1 ? `<br><small>Wortkasten: ${box}</small>` : ""}`, accept: ans, hints: [`Wortkasten: ${box}`, "Das Wort beginnt mit " + ans[0][0].toUpperCase() + "."], solution: ans[0] });
+  });
+
+  // ---------- Generatoren: Geruchssinn ----------
+  gen("bio.geruch.zahl", "geruch", "Der Geruchssinn: Zahlen", (r) => {
+    const [q, ans, hint] = r.pick(GERUCH_ZAHLEN);
+    return numTask({ q, ans, hints: [hint, "Lies im Buch nach: „Geruchssinn des Hundes“ (Seite 23)."], solution: String(ans), pts: 1 });
+  });
+  gen("bio.geruch.fakt", "geruch", "Der Geruchssinn: Fragen", (r) => {
+    const [q, right, wrong] = r.pick(GERUCH_FAKTEN);
+    const o = opts(r, right, [right].concat(wrong));
+    return choiceTask(Object.assign({ q, hints: ["Lies im Buch nach: „Geruchssinn des Hundes“ (Seite 23).", "Der Hund hat meist 220 Millionen Riechsinneszellen, der Mensch bis zu 10 Millionen."], solution: right }, o));
+  });
+  gen("bio.geruch.stimmt", "geruch", "Geruchssinn: Stimmt das?", (r) => {
+    const [s, ok] = r.pick(GERUCH_STIMMT);
+    return choiceTask({ q: `Stimmt die Aussage? <span class="nwsatz">${s}</span>`, options: ["stimmt", "stimmt nicht"], correct: ok ? 0 : 1, hints: ["Denk an das Buch, Seite 23.", ok ? "Diese Aussage steht so im Buch." : "Tipp: Hier ist etwas verdreht. Was müsste richtig heißen?"], solution: ok ? "stimmt" : "stimmt nicht" });
+  });
+
   // ---------- Themen ----------
   const BIOT = [
     { id: "hund", name: "Der Hund – ein Säugetier", icon: "🐕", lern: true, fach: "bio" },
@@ -401,6 +595,9 @@
     { id: "rassen", name: "Hunderassen & Hundearbeit", icon: "🐶", lern: true, fach: "bio" },
     { id: "welpe", name: "Ein Welpe wird geboren", icon: "🍼", lern: true, fach: "bio" },
     { id: "wolf", name: "Vom Wolf zum Hund", icon: "🐺", lern: true, fach: "bio" },
+    { id: "koerper", name: "Körpersprache", icon: "💬", lern: true, fach: "bio" },
+    { id: "geruch", name: "Der Geruchssinn", icon: "👃", lern: true, fach: "bio" },
+    { id: "bedarf", name: "Bedürfnisse & Hundehaltung", icon: "🏠", lern: true, fach: "bio" },
     { id: "katze", name: "Die Katze – ein Schleichjäger", icon: "🐈", lern: false, fach: "bio" },
   ];
   BIOT.forEach((t) => { t.gens = Object.values(G).filter((g) => g.topic === t.id).map((g) => g.id); TOPICS.push(t); });
@@ -409,8 +606,11 @@
     skelett: "Hundeskelett: Schädel, Wirbelsäule, Schulterblatt, Rippen, Beckenknochen. Das Hinterbein von oben nach unten: Oberschenkelknochen, Kniegelenk, Unterschenkelknochen (Schienbein und Wadenbein), Fersenknochen, Fußwurzelknochen, Mittelfußknochen, Zehenknochen. Das Vorderbein beginnt mit dem Oberarmknochen. Der Hund tritt nur mit den Zehenknochen auf (Zehengänger), der Mensch ist ein Sohlengänger. Der Hund ist ein Wirbeltier.",
     gebiss: "Raubtiergebiss: Die kleinen Schneidezähne zupfen Fleischreste von Knochen ab. Die langen, dolchartigen Eckzähne sind Fangzähne (packen, festhalten, töten). Im Ober- und Unterkiefer gibt es je einen großen, gezackten Reißzahn (zerschneidet die Beute). Die Backenzähne zerkleinern die Nahrung; die zwei größten, schärfsten Backenzähne in jedem Kiefer heißen Reißzähne. Zahnformel: Oberkiefer 6 1 3 3 1 6, Unterkiefer 7 1 3 3 1 7, zusammen 42 Zähne.",
     rassen: "Es gibt über 400 gezüchtete Hunderassen. Man züchtet sie für Aufgaben: Jagdhund (Dackel, Foxterrier, Irischer Setter, Beagle, Windhund), Schlittenhund (Husky), Begleithund (Zwergpudel, Yorkshireterrier), Wachhund (Boxer, Deutscher Schäferhund, Englische Bulldogge), Such- und Rettungshund (Bernhardiner), Hütehund, Blindenhund, Polizeihund (Spürhund).",
-    wolf: "Der Wolf ist die Stammform aller Haushunde. Domestizierung: aus dem Wildtier wird ein Haustier. Züchtung: gezieltes Verpaaren, so entstehen Rassen; Nachkommen verschiedener Rassen heißen Mischlinge. Wolfsrudel: 5 bis 10 Tiere mit Leitwolf und Leitwölfin und strenger Rangordnung. Imponierverhalten (beeindrucken), Drohverhalten, Demutsverhalten (unterwerfen).",
+    wolf: "Polarwolf: sehr kalte nördliche Regionen, dichteres Fell, kleine runde Ohren, kurze Schnauze, bis 80 kg, frisst Mäuse, Hasen, Lemminge, Rentiere. Grauwolf: Wälder und Graslandschaften Europas und Asiens, bis 50 kg, frisst Rehe, Hirsche, Hasen, Wildschweine. Wolfshunde (Wolf und Hund) zeigen mehr Wolfsverhalten. Nur Leitwolf und Leitwölfin bekommen Junge. Der Wolf ist die Stammform aller Haushunde. Domestizierung: aus dem Wildtier wird ein Haustier. Züchtung: gezieltes Verpaaren, so entstehen Rassen; Nachkommen verschiedener Rassen heißen Mischlinge. Wolfsrudel: 5 bis 10 Tiere mit Leitwolf und Leitwölfin und strenger Rangordnung. Imponierverhalten (beeindrucken), Drohverhalten, Demutsverhalten (unterwerfen).",
     welpe: "Bei der Hündin: Aufreißen der Fruchtblase, Zerbeißen der Nabelschnur, Trockenlecken, Milchbildung. Beim Welpen: unbeholfenes Kriechen, Pendeln mit dem Kopf, Saugen an den Zitzen, Milchtritt, Trinken der Milch.",
+    koerper: "Wolf: Imponierverhalten (aufrecht, Rute erhoben, größer wirken), Drohverhalten (Körper steif, Rute waagerecht, Ohren angelegt, knurren, Zähne zeigen), Demutsverhalten (Rute einziehen, auf den Rücken, Kehle zeigen: Unterwerfung, deshalb selten blutige Kämpfe). Bilder: A Imponieren, B Drohen, C Angst. Beim Hund verraten Ohren, Rute und Laute die Stimmung: Entspannung, Freude, Anspannung, Unterwerfung, Furcht, Spielaufforderung.",
+    geruch: "Riechsinneszellen sitzen in der Riechschleimhaut der Nasenhöhle: Hund meist 220 Millionen (Fläche wie ein DIN-A4-Blatt), Mensch bis zu 10 Millionen (Fläche wie eine Briefmarke). Schnüffelatmung: bis zu 300-mal pro Minute einatmen, seitlich durch die Nasenlöcher ausatmen, so wird der Geruch nicht verdünnt. Kurzschnauzrassen (Mops) haben oft verengte Nasenöffnungen.",
+    bedarf: "Hunde werden 10 bis 15 Jahre alt. Der Hund ist ein Rudeltier, braucht Erziehung (Hundeschule), geeignetes Futter, einen festen Schlafplatz, viel Auslauf, Gesellschaft und den Tierarzt (untersuchen, entwurmen, impfen). Junge Hunde brauchen Kontakt, alte mehr Ruhe. Kosten: Leine, Geschirr, Futter, Fellpflege, Spielzeug, Tierarzt, Hundesteuer. Hundekauf: Verantwortung, Haltung erlaubt?, Allergien, Hundezucht oder Tierheim. Rüde = männlicher Hund.",
     katze: "Die Katze ist ein Schleichjäger (schleicht sich an und springt kurz), der Hund ein Hetzjäger. Katzen haben einziehbare Krallen (Geheimwaffe), sehen in der Dämmerung und nachts sehr gut (jeder Lichtstrahl wird doppelt genutzt), haben Tasthaare und bewegliche Ohren. Früher schützten sie die Getreidevorräte.",
   };
 
@@ -424,11 +624,13 @@
       ["Hunderassen und Hundearbeit", [["bio.rassen", 2], ["bio.rassen", 3], ["bio.arbeit", 2], ["bio.arbeit", 3]]],
       ["Ein Welpe wird geboren", [["bio.welpe.reihe", 2], ["bio.welpe.reihe", 2], ["bio.welpe.fakt", 2], ["bio.welpe.fakt", 2]]],
       ["Vom Wolf zum Hund", [["bio.wolf.fakt", 2], ["bio.wolf.stimmt", 1], ["bio.wolf.stimmt", 1], ["bio.wolf.luecke", 2], ["bio.wolf.fakt", 2]]],
+      ["Körpersprache", [["bio.koerper.bild", 2], ["bio.koerper.bild", 3], ["bio.koerper.fakt", 2], ["bio.koerper.stimmt", 1]]],
+      ["Geruchssinn, Bedürfnisse und Hundehaltung", [["bio.geruch.zahl", 2], ["bio.geruch.fakt", 2], ["bio.bedarf.fakt", 2], ["bio.bedarf.stimmt", 1], ["bio.bedarf.luecke", 2]]],
     ];
     return parts.map(([title, ts], i) => ({ nr: i + 1, title, tasks: ts.map(([g, l]) => { const t = mk(g, l); if (t.kind === "text") t.pts = Math.max(t.pts, 2); return t; }) }));
   }
 
-  const api = { TYPEN, TYP_AUSSAGEN, STIMMT, LUECKEN, SKELETT, SKELETT_FAKTEN, GEBISS, GEBISS_FAKTEN, ZWECKE, ZAHNFORMEL, ZAHL_FRAGEN, WOLF_FAKTEN, WOLF_STIMMT, WOLF_LUECKEN, RASSEN, ARBEIT, HUENDIN, WELPE, WELPE_FAKTEN, KATZE_FAKTEN, KATZE_STIMMT, VERGLEICH, MERKE, norm, skelettSvg, gebissSvg, probearbeit };
+  const api = { TYPEN, TYP_AUSSAGEN, STIMMT, LUECKEN, SKELETT, SKELETT_FAKTEN, GEBISS, GEBISS_FAKTEN, ZWECKE, POSEN, KOERPER_FAKTEN, KOERPER_STIMMT, BEDARF_FAKTEN, BEDARF_STIMMT, BEDARF_LUECKEN, GERUCH_ZAHLEN, GERUCH_FAKTEN, GERUCH_STIMMT, wolfSvg, ZAHNFORMEL, ZAHL_FRAGEN, WOLF_FAKTEN, WOLF_STIMMT, WOLF_LUECKEN, RASSEN, ARBEIT, HUENDIN, WELPE, WELPE_FAKTEN, KATZE_FAKTEN, KATZE_STIMMT, VERGLEICH, MERKE, norm, skelettSvg, gebissSvg, probearbeit };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.BIO = api;
 })(typeof self !== "undefined" ? self : this);
