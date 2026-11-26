@@ -15,8 +15,8 @@
   function fresh() {
     return {
       v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: ["bommel", "schalstreifen"], scene: "onsenschnee",
-      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true, xpBase: 0, bio1: true },
-      set: { date: "2026-11-09", dateNw: "2026-11-23", dateBio: "", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
+      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true, xpBase: 0, bio1: true, bioDate: true },
+      set: { date: "2026-11-09", dateNw: "2026-11-23", dateBio: "2026-12-04", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
   // Spielstand mehrfach sichern: Hauptschlüssel, zweite Kopie, IndexedDB-Spiegel, dazu eine Sicherungsdatei aus den Einstellungen
@@ -49,6 +49,8 @@
     if (!C.SCENES.some((x) => x.id === o.scene)) o.scene = "onsenschnee";
     if (typeof o.set.dateNw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateNw)) o.set.dateNw = fresh().set.dateNw;
     if (typeof o.set.dateBio !== "string" || (o.set.dateBio && !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateBio))) o.set.dateBio = "";
+    // Termin der Bio-Arbeit: einmal der 4.12. als Standard (danach frei änderbar, auch leer)
+    if (!o.flags.bioDate) { o.flags.bioDate = true; if (!o.set.dateBio) o.set.dateBio = "2026-12-04"; }
     if (o.exam && !["nw", "bio"].includes(o.exam.fach)) o.exam.fach = "mathe";
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
     // Themen-Sets: ihre Punkte zählen ab dem Stand beim ersten Start dieser Version (so gibt es auch bei vielen Punkten Neues zu sammeln)
