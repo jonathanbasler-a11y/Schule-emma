@@ -41,6 +41,7 @@
     ["Ein Hund wird meistens 10 bis 15 Jahre alt.", true], ["Hunde sind gleichwarm, ihre Körpertemperatur liegt zwischen 38 und 39 Grad.", true],
     ["Der Hund kann nur an den Pfoten schwitzen und kühlt sich durch Hecheln ab.", true], ["Hunde schwitzen am ganzen Körper wie wir Menschen.", false],
     ["Der Hund kann mit seinem Hörsinn auch sehr hohe Töne wahrnehmen.", true], ["Der Hund sieht besser als der Mensch und braucht die Nase kaum.", false],
+    ["Der Hund hat ein Pflanzenfressergebiss mit flachen Mahlzähnen.", false], ["Der Hund ist ein Sohlengänger wie der Mensch.", false], ["Das Skelett des Hundes hat keine Wirbelsäule.", false],
     ["Das Fell des Hundes besteht aus längeren Deckhaaren und kurzen Wollhaaren.", true], ["Das Fell schützt den Hund gut vor Kälte.", true],
     ["Ein Hund erkennt an Körperhaltung, Körpergeruch und Gesichtsausdruck, ob sich ein Mensch freut oder traurig ist.", true],
     ["Manche Hunde können Krankheiten beim Menschen erriechen, wenn sie darauf trainiert wurden.", true], ["Hunde können sich überhaupt nicht in Menschen einfühlen.", false],
@@ -239,6 +240,8 @@
     ["Im Wolfsrudel bekommen alle Wölfe Junge.", false], ["Der Polarwolf wiegt bis zu 80 Kilogramm, der Grauwolf bis zu 50 Kilogramm.", true],
     ["Der Polarwolf hat dichteres Fell und kleine, runde Ohren.", true], ["Der Grauwolf lebt in sehr kalten nördlichen Regionen.", false],
     ["Wolfshunde zeigen meist mehr Verhaltensweisen des Wolfs als andere Rassen.", true], ["Die ersten Wölfe suchten erst vor 300 Jahren die Nähe des Menschen.", false],
+    ["Der Grauwolf wiegt bis zu 80 Kilogramm, der Polarwolf bis zu 50 Kilogramm.", false], ["Wölfe jagen nur kurze Strecken und geben dann sofort auf.", false],
+    ["Alle Hunderassen sind eigene Arten und können sich nicht untereinander fortpflanzen.", false],
   ];
   const WOLF_LUECKEN = [
     ["Der Wolf ist die Stammform aller ___.", ["Haushunde", "Haushund"], "Haushunde, Füchse, Katzen"],
@@ -281,6 +284,9 @@
     ["Auf Bild A der Wölfe hält der Wolf die Rute erhoben (Imponierverhalten).", true], ["Auf Bild C zeigt der Wolf Angstverhalten.", true],
     ["Der Hund verständigt sich durch Körpersprache.", true], ["Die Stellung der Ohren und der Rute verrät etwas über die Stimmung des Hundes.", true],
     ["Ein Hund mit eingeklemmter Rute und geducktem Körper ist entspannt und fröhlich.", false], ["Durch das Demutsverhalten kommt es selten zu blutigen Kämpfen im Rudel.", true],
+    ["Beim Imponierverhalten legt der Wolf sich auf den Rücken und zeigt die Kehle.", false], ["Auf Bild B zeigt der Wolf Demutsverhalten.", false],
+    ["Beim Drohverhalten wedelt der Wolf mit der erhobenen Rute und legt sich hin.", false], ["Auf Bild A macht sich der Wolf klein und zieht die Rute ein.", false],
+    ["Wölfe verständigen sich nur durch Laute, nicht durch Körpersprache.", false],
   ];
 
   // ---------- Daten: Bedürfnisse und Hundehaltung (Buch S. 22) ----------
@@ -307,7 +313,9 @@
     ["Bei alten Hunden lassen die Sinnesleistungen nach.", true], ["Zur Hundehaltung gehören auch Kosten für Futter, Tierarzt und Hundesteuer.", true],
     ["Ein Hund ist ein Spielzeug und braucht keine Verantwortung.", false], ["Vor dem Hundekauf sollte man klären, ob jemand in der Familie gegen Tierhaare allergisch ist.", true],
     ["Man kann einen Hund aus der Hundezucht oder aus dem Tierheim holen.", true], ["Junge Hunde brauchen keinen Kontakt zu anderen Hunden.", false],
-    ["Ein Hund braucht nur bei schönem Wetter Auslauf.", false],
+    ["Ein Hund braucht nur bei schönem Wetter Auslauf.", false], ["Hunde werden meistens nur 2 bis 4 Jahre alt.", false],
+    ["Bei der Hundehaltung entstehen keine Kosten außer für das Futter.", false], ["Ein Hund muss nie zum Tierarzt, wenn er gesund aussieht.", false],
+    ["Alte Hunde brauchen mehr Ruhe als junge Hunde.", true],
   ];
   const BEDARF_LUECKEN = [
     ["Hunde werden meistens 10 bis ___ Jahre alt.", ["15"], "15, 5, 30"],
@@ -350,6 +358,8 @@
     ["Der Hund atmet beim Schnüffeln seitlich durch die Nasenlöcher aus.", true], ["Der Hund kann bis zu 300-mal in der Minute einatmen.", true],
     ["Kurzschnauzrassen wie der Mops haben oft verengte Nasenöffnungen.", true], ["Der Hund nimmt die Umwelt hauptsächlich über die Augen wahr.", false],
     ["Die Riechsinneszellen sitzen in der Riechschleimhaut der Nasenhöhle.", true], ["Der Mensch hat 220 Millionen Riechsinneszellen.", false],
+    ["Der Hund atmet beim Schnüffeln durch die Nasenlöcher nur ein und gar nicht aus.", false], ["Die Riechschleimhaut des Menschen ist so groß wie ein DIN-A4-Blatt.", false],
+    ["Der Hund kann nur 3-mal in der Minute einatmen.", false],
   ];
 
   // ---------- Zeichnungen ----------
@@ -389,9 +399,9 @@
         + (o.teeth ? `<path d="M${ox + o.hx0 - 22} ${o.hy + 22} l4 6 l4 -6 M${ox + o.hx0 - 10} ${o.hy + 24} l4 6 l4 -6" fill="#fff" stroke="${DARK}" stroke-width="1.2"/>` : "")
         + `<path class="ear" d="M${ox + o.ear[0]} ${o.ear[1]} L${ox + o.ear[2]} ${o.ear[3]} L${ox + o.ear[4]} ${o.ear[5]} Z"/>`
         + `<circle cx="${ox + o.hx0 - 2}" cy="${o.hy + 8}" r="2.2" fill="${DARK}" stroke="none"/>`
-        + `<text x="${ox + 70}" y="150" text-anchor="middle" font-size="14" font-weight="700" fill="${DARK}" stroke="none">${id}</text></g>`;
+        + `<circle cx="${ox + 70}" cy="147" r="11" fill="#fff" stroke="${line}" stroke-width="1.6"/><text x="${ox + 70}" y="153" text-anchor="middle" font-size="17" font-weight="700" fill="${DARK}" stroke="none">${id}</text></g>`;
     };
-    return `<svg class="nwfig wolf" viewBox="0 0 470 156" role="img" aria-label="Drei Wölfe mit Körpersprache: A, B und C">`
+    return `<svg class="nwfig wolf" viewBox="0 0 470 162" role="img" aria-label="Drei Wölfe mit Körpersprache: A, B und C">`
       + wolf("A", 0, { by: 62, fx: 54, hx: 110, hx0: 26, hy: 28, tx1: 150, ty1: 44, tx2: 146, ty2: 14, ear: [20, 32, 28, 10, 38, 32], teeth: false })
       + wolf("B", 155, { by: 78, fx: 52, hx: 112, hx0: 22, hy: 66, tx1: 160, ty1: 80, tx2: 168, ty2: 82, ear: [28, 66, 46, 62, 36, 78], teeth: true })
       + wolf("C", 310, { by: 94, fx: 50, hx: 114, hx0: 22, hy: 90, tx1: 138, ty1: 126, tx2: 114, ty2: 132, ear: [28, 90, 46, 94, 34, 102], teeth: false })
