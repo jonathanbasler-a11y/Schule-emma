@@ -52,7 +52,7 @@ const solveIn = (p, sel, idx, wrong) => p.evaluate(([sel, idx, wrong]) => {
   check(await p.locator(".tcard").count() === 4, "4 Themen im Fach Naturwissenschaften");
   const names = (await p.locator(".tcard .tname").allTextContents()).join("|");
   check(/Sonnensystem/.test(names) && /Sterne/.test(names) && /ISS/.test(names) && /Gradnetz/.test(names), "Themen: Sonnensystem, Sterne, ISS, Gradnetz");
-  check(/NW-Arbeit/.test(await p.textContent(".countdown")), "Countdown nennt die NW-Arbeit: " + (await p.textContent(".countdown")).trim());
+  check(/NW-Arbeit|geschafft/.test(await p.textContent(".countdown")), "Countdown nennt die NW-Arbeit (oder, nach dem Termin, „geschafft“): " + (await p.textContent(".countdown")).trim());
   const d = await p.evaluate(() => window.__EMMA.S.set.dateNw);
   check(d === "2026-11-23", "Datum der Arbeit 23.11.");
   check(await p.locator(".goal").count() === 1 && /Weg zur Eins/.test(await p.textContent(".goal")) && /ab <b>/.test(await p.innerHTML(".goal")) , "Karte „Mein Weg zur Eins“ im Fach");

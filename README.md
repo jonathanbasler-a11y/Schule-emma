@@ -14,6 +14,8 @@ Der Fortschritt geht nicht verloren: Er wird zweifach im Browser und zusätzlich
 ## Naturwissenschaften (Klasse 5, Erde im Weltall)
 Oben auf der Startseite wählt man das Fach. Themen nach den Heftseiten und Arbeitsblättern: Sonnensystem und Planeten (Merksatz, innere und äußere Planeten, Steckbriefe), Sterne, Planeten und Monde, ein Tag auf der ISS, Gradnetz der Erde (mit Zeichnungen zum Beschriften). Fehlerkiste und Probearbeit mit Notenschätzung gibt es auch hier (`public/nw.js`, Tests `tools/test-nw.mjs` und `tools/e2e-nw.mjs`).
 
+Das Fach **Biologie** (Hund und Katze) hat sechs Themen nach den Arbeitsblättern und Heftseiten: der Hund als Säugetier (Nasentier, Ohrentier, Zehengänger, Hetzjäger), das Hundeskelett und das Raubtiergebiss (beide mit eigenen Zeichnungen zum Beschriften), Hunderassen und Hundearbeit, ein Welpe wird geboren und die Katze als Schleichjäger. Alle Fragen und Bilder sind selbst gemacht, Fehlerkiste und Probearbeit mit Notenschätzung wie in den anderen Fächern. Den Termin der Bio-Arbeit stellt man in den Einstellungen ein (ohne Termin gibt es keinen Countdown). Code in `public/bio.js`, Tests `tools/test-bio.mjs` und `tools/e2e-bio.mjs`; beim ersten Start mit dieser Version wird einmal auf Biologie umgeschaltet.
+
 ## Mathe
 - **Alle Themen vom Lernzettel einzeln üben:**
   - Zahlenstrahl
