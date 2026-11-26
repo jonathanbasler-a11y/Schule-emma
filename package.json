@@ -4,6 +4,6 @@
   "description": "Capy & Mathe – Lern-App fürs iPad zur Mathe-Klassenarbeit Klasse 5",
   "private": true,
   "scripts": {
-    "test": "node tools/test-aufgaben.mjs && node tools/test-nw.mjs && node tools/test-garderobe.mjs && node tools/test-version.mjs && node tools/e2e.mjs && node tools/e2e-nw.mjs && node tools/e2e-winter.mjs && node tools/e2e-sicherung.mjs && node tools/test-offline.mjs"
+    "test": "node tools/test-aufgaben.mjs && node tools/test-nw.mjs && node tools/test-bio.mjs && node tools/test-garderobe.mjs && node tools/test-version.mjs && node tools/e2e.mjs && node tools/e2e-nw.mjs && node tools/e2e-bio.mjs && node tools/e2e-winter.mjs && node tools/e2e-sicherung.mjs && node tools/test-offline.mjs"
   }
 }

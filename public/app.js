@@ -1,7 +1,7 @@
 // Capy & Mathe – Oberfläche: Start, Thema üben, Fehlerkiste, Probearbeit, Album, Einstellungen.
 (function () {
   "use strict";
-  const A = window.Aufgaben, C = window.Capy, N = window.NW || {};
+  const A = window.Aufgaben, C = window.Capy, N = window.NW || {}, BIO = window.BIO || {};
   const TEST = window.__EMMA_TEST || {};
   const KEY = "capy-mathe-v1";
   const ROUND = TEST.roundLen || 8;
@@ -15,8 +15,8 @@
   function fresh() {
     return {
       v: 1, xp: 0, fach: TEST.fach || "nw", gens: {}, box: [], exams: [], exam: null, stickers: [], wear: ["bommel", "schalstreifen"], scene: "onsenschnee",
-      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true, xpBase: 0 },
-      set: { date: "2026-11-09", dateNw: "2026-11-23", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
+      days: {}, streak: 0, lastDay: "", music: { on: false, vol: 0.5 }, sound: true, flags: { winter1: true, xpBase: 0, bio1: true, bioDate: true },
+      set: { date: "2026-11-09", dateNw: "2026-11-23", dateBio: "2026-12-04", season: "winter", snow: true, examMin: 45, key: [92, 80, 65, 50, 25], theme: "auto" }, stats: { tasks: 0, ok: 0, help: 0 },
     };
   }
   // Spielstand mehrfach sichern: Hauptschlüssel, zweite Kopie, IndexedDB-Spiegel, dazu eine Sicherungsdatei aus den Einstellungen
@@ -38,7 +38,9 @@
     if (!Array.isArray(o.set.key) || o.set.key.length !== 5 || o.set.key.some((x) => typeof x !== "number")) o.set.key = fresh().set.key;
     o.box = o.box.filter((b) => b && A.G[b.gen]);
     if (o.exam && (!o.exam.seed || !o.exam.start)) o.exam = null;
-    if (o.fach !== "mathe" && o.fach !== "nw") o.fach = "nw";
+    if (!["mathe", "nw", "bio"].includes(o.fach)) o.fach = "nw";
+    // neues Fach Biologie: beim ersten Start mit diesem Fach einmal auf Biologie umschalten
+    if (!o.flags.bio1) { o.flags.bio1 = true; if (!TEST.fach) o.fach = "bio"; }
     if (o.set.season !== "winter" && o.set.season !== "herbst") o.set.season = "winter";
     o.set.snow = o.set.snow !== false;
     o.wear = o.wear.filter((w) => C.OUTFITS.some((x) => x.id === w));
@@ -46,7 +48,10 @@
     if (!o.flags.winter1) { o.flags.winter1 = true; o.scene = "onsenschnee"; if (!o.wear.length) o.wear = ["bommel", "schalstreifen"]; }
     if (!C.SCENES.some((x) => x.id === o.scene)) o.scene = "onsenschnee";
     if (typeof o.set.dateNw !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateNw)) o.set.dateNw = fresh().set.dateNw;
-    if (o.exam && o.exam.fach !== "nw") o.exam.fach = "mathe";
+    if (typeof o.set.dateBio !== "string" || (o.set.dateBio && !/^\d{4}-\d{2}-\d{2}$/.test(o.set.dateBio))) o.set.dateBio = "";
+    // Termin der Bio-Arbeit: einmal der 4.12. als Standard (danach frei änderbar, auch leer)
+    if (!o.flags.bioDate) { o.flags.bioDate = true; if (!o.set.dateBio) o.set.dateBio = "2026-12-04"; }
+    if (o.exam && !["nw", "bio"].includes(o.exam.fach)) o.exam.fach = "mathe";
     if (typeof o.xp !== "number" || !isFinite(o.xp)) o.xp = 0;
     // Themen-Sets: ihre Punkte zählen ab dem Stand beim ersten Start dieser Version (so gibt es auch bei vielen Punkten Neues zu sammeln)
     if (typeof o.flags.xpBase !== "number") o.flags.xpBase = o.xp;
@@ -111,7 +116,9 @@
     S.days[k] = (S.days[k] || 0);
   }
   function daysLeft(f) {
-    const t = new Date((f === "nw" ? S.set.dateNw : S.set.date) + "T08:00:00");
+    const ds = f === "nw" ? S.set.dateNw : f === "bio" ? S.set.dateBio : S.set.date;
+    if (!ds) return null;
+    const t = new Date(ds + "T08:00:00");
     if (isNaN(t)) return null;
     const a = new Date(); a.setHours(0, 0, 0, 0); const b = new Date(t); b.setHours(0, 0, 0, 0);
     return Math.round((b - a) / 86400000);
@@ -123,7 +130,8 @@
   const topicPct = (t) => Math.round((t.gens.reduce((a, id) => a + genScore(id), 0) / t.gens.length) * 100);
   const topicById = (id) => A.TOPICS.find((t) => t.id === id);
   const topicsOf = (f) => A.TOPICS.filter((t) => (t.fach || "mathe") === f);
-  const probeParts = (f, seed) => (f === "nw" ? N.probearbeit(seed) : A.probearbeit(seed));
+  const probeParts = (f, seed) => (f === "nw" ? N.probearbeit(seed) : f === "bio" ? BIO.probearbeit(seed) : A.probearbeit(seed));
+  const FACH = { bio: { icon: "🐕", name: "Biologie", arb: "Bio-Arbeit", head: "Themen aus dem Unterricht" }, nw: { icon: "🪐", name: "Naturwissenschaften", arb: "NW-Arbeit", head: "Themen aus dem Unterricht" }, mathe: { icon: "🔢", name: "Mathe", arb: "Mathe-Arbeit", head: "Themen vom Lernzettel" } };
 
   // ---------- Sticker und Belohnungen ----------
   const STICKERS = [
@@ -203,8 +211,8 @@
 
   // ---------- Start ----------
   function vHome() {
-    const d = daysLeft(S.fach), ARB = S.fach === "nw" ? "NW-Arbeit" : "Mathe-Arbeit";
-    const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur ${ARB}` : d === 1 ? "<b>Morgen</b> ist die ${ARB} – du schaffst das!" : d === 0 ? "<b>Heute</b> ist die ${ARB}. Viel Glück! 🍀" : "Die Arbeit ist geschafft – üben hält dich fit.";
+    const d = daysLeft(S.fach), ARB = FACH[S.fach].arb;
+    const cd = d == null ? "" : d > 1 ? `Noch <b>${d} Tage</b> bis zur ${ARB}` : d === 1 ? `<b>Morgen</b> ist die ${ARB} – du schaffst das!` : d === 0 ? `<b>Heute</b> ist die ${ARB}. Viel Glück! 🍀` : "Die Arbeit ist geschafft – üben hält dich fit.";
     const boxN = S.box.length;
     // Mein Weg zur Eins: bester Stand der Probearbeiten im Fach, dazu ein kleiner Tagesplan
     const exF = S.exams.filter((e) => (e.fach || "mathe") === S.fach), best = exF.length ? exF.reduce((a, e) => (e.pct > a.pct ? e : a)) : null, key1 = S.set.key[0], todayN = S.days[dayKey()] || 0;
@@ -220,15 +228,15 @@
         </div>
         <div class="countdown">${cd}</div>
       </section>
-      ${S.fach === "nw" ? goal : ""}
-      <nav class="fachtabs" aria-label="Fach wählen"><button class="${S.fach === 'nw' ? 'on' : ''}" data-act="fach" data-v="nw">🪐 Naturwissenschaften</button><button class="${S.fach === 'mathe' ? 'on' : ''}" data-act="fach" data-v="mathe">🔢 Mathe</button></nav>
+      ${S.fach !== "mathe" ? goal : ""}
+      <nav class="fachtabs" aria-label="Fach wählen">${["bio", "nw", "mathe"].map((f) => `<button class="${S.fach === f ? "on" : ""}" data-act="fach" data-v="${f}">${FACH[f].icon} ${FACH[f].name}</button>`).join("")}</nav>
       <section class="acts">
         ${running}
         <button class="big-act exam" data-act="examIntro"><span class="ico">📝</span><span><b>Probearbeit schreiben</b><small>${S.set.examMin} Minuten, mit Note – wie in der Schule</small></span></button>
         <button class="big-act box" data-act="box" ${boxN ? "" : "disabled"}><span class="ico">📦</span><span><b>Fehlerkiste${boxN ? ` (${boxN})` : ""}</b><small>${boxN ? "Deine Fehler nochmal üben" : "Noch leer – super!"}</small></span></button>
         <button class="big-act mix" data-act="mix"><span class="ico">🍵</span><span><b>Gemischte Runde</b><small>${ROUND} Aufgaben aus allen Themen</small></span></button>
       </section>
-      <h2 class="sec">${S.fach === "nw" ? "Themen aus dem Unterricht" : "Themen vom Lernzettel"}</h2>
+      <h2 class="sec">${FACH[S.fach].head}</h2>
       <section class="topics">${topicsOf(S.fach).map((t) => `<button class="tcard ${t.lern ? "" : "extra"}" data-act="topic" data-v="${t.id}"><span class="ticon">${t.icon}</span><span class="tname">${t.name}${t.lern ? "" : "<small>nicht auf dem Lernzettel</small>"}</span>${ring(topicPct(t))}</button>`).join("")}</section>
       <nav class="foot">
         <button data-act="album">🌟 Sticker-Album</button>
@@ -257,7 +265,7 @@
   function vTopic() {
     const t = topicById(view.topic);
     return topbar(t.icon + " " + t.name, "home") + `<main class="topic">
-      <div class="merke"><b>Merke</b> ${esc(MERKE[t.id] || (N.MERKE || {})[t.id] || "")}</div>
+      <div class="merke"><b>Merke</b> ${esc(MERKE[t.id] || (N.MERKE || {})[t.id] || (BIO.MERKE || {})[t.id] || "")}</div>
       <button class="big-act mix" data-act="startTopic" data-v="${t.id}"><span class="ico">${t.icon}</span><span><b>Alles gemischt üben</b><small>${ROUND} Aufgaben, werden mit dir schwerer</small></span></button>
       <h2 class="sec">Einzeln üben</h2>
       <ul class="skills">${t.gens.map((id) => { const g = S.gens[id], p = Math.round(genScore(id) * 100); const lv = g ? A.G[id].lvls.indexOf(g.lvl) : 0; return `<li><button data-act="startGen" data-v="${id}"><span class="sname">${A.G[id].name}</span><span class="slvl" title="Stufe">${A.G[id].lvls.map((_, i) => `<i class="${i <= lv && g ? "on" : ""}">${DOTS[Math.min(i, 2)]}</i>`).join("")}</span><span class="bar"><i style="width:${p}%"></i></span></button></li>`; }).join("")}</ul></main>`;
@@ -528,7 +536,7 @@
       <div class="row">${C.mochi("calm", S.wear.concat(["brille"]).filter((v, i, a) => a.indexOf(v) === i), 130)}<div>
       <h2>Wie eine echte Klassenarbeit</h2>
       <ul class="plain"><li>⏱️ <b>${S.set.examMin} Minuten</b> Zeit. Die Uhr läuft weiter, auch wenn du die App kurz verlässt.</li>
-      <li>${S.fach === "nw" ? "📄 5 Aufgabengruppen wie auf deinen Arbeitsblättern: Sonnensystem und Planeten, Sterne und Monde, ein Tag auf der ISS und das Gradnetz der Erde (beschriften, ankreuzen, Lückentext, Rechnen)." : "📄 10 Aufgaben wie im Buch-Test auf Seite 37: Zahlenstrahl, Zahlwörter, Runden, Kopfrechnen, schriftlich rechnen, Platzhalter, Sachaufgaben, römische Zahlen, Zweiersystem, Diagramme, Fachbegriffe."}</li>
+      <li>${S.fach === "bio" ? "📄 5 Aufgabengruppen wie auf deinen Arbeitsblättern: der Hund als Säugetier, Skelett und Gebiss (beschriften), Hunderassen und Hundearbeit, ein Welpe wird geboren und die Katze als Schleichjäger." : S.fach === "nw" ? "📄 5 Aufgabengruppen wie auf deinen Arbeitsblättern: Sonnensystem und Planeten, Sterne und Monde, ein Tag auf der ISS und das Gradnetz der Erde (beschriften, ankreuzen, Lückentext, Rechnen)." : "📄 10 Aufgaben wie im Buch-Test auf Seite 37: Zahlenstrahl, Zahlwörter, Runden, Kopfrechnen, schriftlich rechnen, Platzhalter, Sachaufgaben, römische Zahlen, Zweiersystem, Diagramme, Fachbegriffe."}</li>
       <li>🤫 Keine Hilfe und kein „richtig/falsch“ während der Arbeit – erst am Ende.</li>
       <li>📝 Beim schriftlichen Rechnen gibt es auch einen Punkt für den Überschlag.</li>
       <li>🎓 Am Ende bekommst du Punkte und eine Note – so ungefähr wie in der Schule.</li></ul></div></div>
@@ -678,6 +686,7 @@
     const k = S.set.key;
     return topbar("⚙️ Einstellungen", "home") + `<main class="settings">
       <div class="card"><h2>Für dich</h2>
+        <label class="row2">Tag der Bio-Arbeit (leer = noch kein Termin) <input type="date" data-set="dateBio" value="${esc(S.set.dateBio)}"></label>
         <label class="row2">Tag der NW-Arbeit <input type="date" data-set="dateNw" value="${esc(S.set.dateNw)}"></label>
         <label class="row2">Tag der Mathe-Arbeit <input type="date" data-set="date" value="${esc(S.set.date)}"></label>
         <label class="row2">Jahreszeit <select data-set="season"><option value="winter" ${S.set.season === "winter" ? "selected" : ""}>Winter</option><option value="herbst" ${S.set.season === "herbst" ? "selected" : ""}>Herbst</option></select></label>
@@ -726,7 +735,7 @@
     const act = b.dataset.act, v = b.dataset.v;
     switch (act) {
       case "home": go("home"); break;
-      case "fach": if (v === "nw" || v === "mathe") { S.fach = v; save(); render(); } break;
+      case "fach": if (v === "nw" || v === "mathe" || v === "bio") { S.fach = v; save(); render(); } break;
       case "topic": go("topic", { topic: v }); break;
       case "startTopic": startPractice("topic", { topic: v }); break;
       case "startGen": startPractice("gen", { gen: v }); break;
@@ -793,6 +802,7 @@
       const k = x.dataset.set;
       if (k === "date") S.set.date = x.value || S.set.date;
       if (k === "dateNw") S.set.dateNw = x.value || S.set.dateNw;
+      if (k === "dateBio") S.set.dateBio = x.value || "";
       if (k === "examMin") S.set.examMin = Number(x.value);
       if (k === "theme") { S.set.theme = x.value; applyTheme(); }
       if (k === "season") { S.set.season = x.value; applyTheme(); render(); }

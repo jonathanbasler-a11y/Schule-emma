@@ -23,6 +23,8 @@ jobs:
         run: node tools/test-aufgaben.mjs 300
       - name: Naturwissenschaften-Logik
         run: node tools/test-nw.mjs
+      - name: Biologie (Aufgaben und Zeichnungen)
+        run: node tools/test-bio.mjs
       - name: Garderobe und Orte
         run: node tools/test-garderobe.mjs
       - name: Browser installieren
@@ -33,6 +35,8 @@ jobs:
         run: node tools/e2e.mjs
       - name: Naturwissenschaften im Browser
         run: node tools/e2e-nw.mjs
+      - name: Biologie im Browser
+        run: node tools/e2e-bio.mjs
       - name: Winter-Design und Garderobe im Browser
         run: node tools/e2e-winter.mjs
       - name: Sicherung im Browser
