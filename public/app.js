@@ -131,7 +131,7 @@
   const topicById = (id) => A.TOPICS.find((t) => t.id === id);
   const topicsOf = (f) => A.TOPICS.filter((t) => (t.fach || "mathe") === f);
   const probeParts = (f, seed) => (f === "nw" ? N.probearbeit(seed) : f === "bio" ? BIO.probearbeit(seed) : A.probearbeit(seed));
-  const FACH = { bio: { icon: "🐕", name: "Biologie", arb: "Bio-Arbeit", head: "Themen aus dem Unterricht" }, nw: { icon: "🪐", name: "Naturwissenschaften", arb: "NW-Arbeit", head: "Themen aus dem Unterricht" }, mathe: { icon: "🔢", name: "Mathe", arb: "Mathe-Arbeit", head: "Themen vom Lernzettel" } };
+  const FACH = { bio: { icon: "🐕", name: "Biologie", tab: "Biologie", arb: "Bio-Arbeit", head: "Themen aus dem Unterricht" }, nw: { icon: "🪐", name: "Naturwissenschaften", tab: "NW", arb: "NW-Arbeit", head: "Themen aus dem Unterricht" }, mathe: { icon: "🔢", name: "Mathe", tab: "Mathe", arb: "Mathe-Arbeit", head: "Themen vom Lernzettel" } };
 
   // ---------- Sticker und Belohnungen ----------
   const STICKERS = [
@@ -229,7 +229,7 @@
         <div class="countdown">${cd}</div>
       </section>
       ${S.fach !== "mathe" ? goal : ""}
-      <nav class="fachtabs" aria-label="Fach wählen">${["bio", "nw", "mathe"].map((f) => `<button class="${S.fach === f ? "on" : ""}" data-act="fach" data-v="${f}">${FACH[f].icon} ${FACH[f].name}</button>`).join("")}</nav>
+      <nav class="fachtabs" aria-label="Fach wählen">${["bio", "nw", "mathe"].map((f) => `<button class="${S.fach === f ? "on" : ""}" data-act="fach" data-v="${f}" aria-label="${FACH[f].name}">${FACH[f].icon} ${FACH[f].tab}</button>`).join("")}</nav>
       <section class="acts">
         ${running}
         <button class="big-act exam" data-act="examIntro"><span class="ico">📝</span><span><b>Probearbeit schreiben</b><small>${S.set.examMin} Minuten, mit Note – wie in der Schule</small></span></button>

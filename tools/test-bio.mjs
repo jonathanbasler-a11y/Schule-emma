@@ -177,7 +177,7 @@ for (const [k] of B.GEBISS) {
   ok(Math.abs(tail("B").y - tail("B").y0) <= 8 && tail("B").x - tail("B").x0 > 20, "B: Rute waagerecht");
   ok(tail("C").y > tail("C").y0 + 15, "C: Rute nach unten eingezogen");
   ok(body("A") < body("B") && body("B") < body("C"), "Der Körper wird von A über B nach C tiefer");
-  ok(/fill="#fff"/.test(g("B")) && !/fill="#fff"/.test(g("A")) && !/fill="#fff"/.test(g("C")), "Nur B zeigt die Zähne");
+  ok(/l4 6 l4 -6/.test(g("B")) && !/l4 6 l4 -6/.test(g("A")) && !/l4 6 l4 -6/.test(g("C")), "Nur B zeigt die Zähne");
   ok(["A", "B", "C"].every((L) => (B.wolfSvg(L).match(/stroke="#e0364d"/g) || []).length >= 5 && !new RegExp(`<g data-pose="[^${L}]"[^>]*stroke="#e0364d"`).test(B.wolfSvg(L))), "genau ein Wolf ist rot markiert");
 }
 
