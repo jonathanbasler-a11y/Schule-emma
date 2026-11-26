@@ -12,6 +12,7 @@
   const T = (o) => Object.assign({ kind: "text", pts: 1, hints: [], unit: "" }, o);
   const textTask = (o) => T(Object.assign({ kind: "text", check: (s) => ({ ok: o.accept.some((a) => norm(a) === norm(s)) }), answer: o.accept[0] }, o));
   const choiceTask = (o) => T(Object.assign({ kind: "choice", check: (i) => ({ ok: Number(i) === o.correct }), answer: o.options[o.correct] }, o));
+  const numTask = (o) => T(Object.assign({ kind: "num", check: (s) => ({ ok: A.parseNum(s) === o.ans }), answer: String(o.ans) }, o));
   const gen = (id, topic, name, f, o) => { G[id] = Object.assign({ id, topic, name, f, lvls: [1, 2, 3] }, o || {}); };
   function opts(r, right, pool, n) {
     const others = r.shuffle(pool.filter((x) => x !== right)).slice(0, (n || 4) - 1);
@@ -22,7 +23,7 @@
   // ---------- Daten: Der Hund ----------
   const TYPEN = ["Nasentier", "Ohrentier", "Zehengänger", "Hetzjäger"];
   const TYP_AUSSAGEN = {
-    Nasentier: ["Er hat eine sehr feine, empfindliche Spürnase.", "Er hilft dem Menschen als Spür- oder Suchhund, zum Beispiel bei der Polizei.", "Er hat viel mehr Riechzellen als ein Mensch.", "Mit seiner Nase findet er Spuren und vermisste Menschen."],
+    Nasentier: ["Er hat eine sehr feine, empfindliche Spürnase.", "Er hilft dem Menschen als Spür- oder Suchhund, zum Beispiel bei der Polizei.", "Er hat viel mehr Riechzellen als ein Mensch.", "Mit seiner Nase findet er Spuren und vermisste Menschen.", "Er nutzt die Schnüffelatmung, um Gerüche aufzunehmen."],
     Ohrentier: ["Er hört sehr hohe Töne, auch sehr leise, die wir Menschen nicht mehr hören.", "Sein Hörsinn ist sehr empfindlich.", "Er kann seine Ohren bewegen und damit Geräusche genau orten.", "Er hört eine Hundepfeife, die wir nicht hören."],
     Zehengänger: ["Er tritt nur mit den Zehen auf und nicht mit der ganzen Fußsohle.", "Er ist ein sehr schneller und ausdauernder Läufer.", "Im Gegensatz zum Menschen setzt er die Ferse beim Gehen nicht auf.", "Beim Laufen berühren nur die Zehenspitzen den Boden."],
     Hetzjäger: ["Er jagt zum Beispiel Hasen lange und ausdauernd in großen Sprüngen.", "Er verfolgt seine Beute so lange, bis sie müde ist.", "Wie der Wolf jagt er in einer langen Verfolgungsjagd.", "Er gehört zu den Landraubtieren und jagt mit Ausdauer."],
@@ -36,6 +37,10 @@
     ["Der Hund hat ein Pflanzenfressergebiss.", false], ["Hundewelpen trinken Milch bei ihrer Mutter.", true],
     ["Der Hund ist ein Reptil.", false], ["Der Hund stammt vom Wolf ab.", true], ["Der Hund hat kein Skelett.", false],
     ["Ein Hund kann seine Beute nur ganz kurz verfolgen.", false],
+    ["Der Hund ist ein Wirbeltier.", true], ["Der Mensch ist wie der Hund ein Zehengänger.", false], ["Der Mensch ist ein Sohlengänger.", true],
+    ["Ein Hund wird meistens 10 bis 15 Jahre alt.", true], ["Hunde sind gleichwarm, ihre Körpertemperatur liegt zwischen 38 und 39 Grad.", true],
+    ["Der Hund kann nur an den Pfoten schwitzen und kühlt sich durch Hecheln ab.", true], ["Hunde schwitzen am ganzen Körper wie wir Menschen.", false],
+    ["Der Hund kann mit seinem Hörsinn auch sehr hohe Töne wahrnehmen.", true], ["Der Hund sieht besser als der Mensch und braucht die Nase kaum.", false],
   ];
   const LUECKEN = [
     ["Der Hund hat ein ___.", ["Raubtiergebiss"], "Raubtiergebiss, Pflanzenfressergebiss, Milchgebiss"],
@@ -49,6 +54,9 @@
     ["Hunde sind ___, weil sie ihre Jungen mit Milch säugen.", ["Säugetiere", "Säugetier"], "Säugetiere, Reptilien, Vögel"],
     ["Ein Hund hört ___ Töne besser als ein Mensch.", ["hohe"], "hohe, tiefe, laute"],
     ["Der Hund ist das älteste ___ des Menschen.", ["Haustier"], "Haustier, Nutztier, Wildtier"],
+    ["Der Hund hat ein Skelett aus Knochen, deshalb ist er ein ___.", ["Wirbeltier"], "Wirbeltier, Weichtier, Insekt"],
+    ["Der Mensch tritt mit der ganzen Fußsohle auf, er ist ein ___.", ["Sohlengänger"], "Sohlengänger, Zehengänger, Hetzjäger"],
+    ["Hunde sind ___, ihre Körpertemperatur bleibt gleich.", ["gleichwarm"], "gleichwarm, wechselwarm, kaltblütig"],
     ["Der Hund ist ein ___, er hört sehr hohe Töne, die wir nicht mehr hören.", ["Ohrentier"], "Ohrentier, Nasentier, Zehengänger"],
     ["Mit seiner Spürnase hilft der Hund der Polizei als ___.", ["Spürhund", "Suchhund"], "Spürhund, Schlittenhund, Hütehund"],
   ];
@@ -57,8 +65,9 @@
   const SKELETT = [
     ["schaedel", "Schädel", ["Schädel", "Schaedel"]], ["wirbel", "Wirbelsäule", ["Wirbelsäule", "Wirbelsaeule"]], ["schulter", "Schulterblatt", ["Schulterblatt"]],
     ["becken", "Beckenknochen", ["Beckenknochen", "Becken"]], ["rippen", "Rippen", ["Rippen", "Rippe"]], ["oberschenkel", "Oberschenkelknochen", ["Oberschenkelknochen", "Oberschenkel"]],
-    ["unterschenkel", "Unterschenkelknochen", ["Unterschenkelknochen", "Unterschenkel"]], ["ferse", "Ferse", ["Ferse", "Fersenbein"]],
+    ["unterschenkel", "Unterschenkelknochen", ["Unterschenkelknochen", "Unterschenkel"]], ["ferse", "Fersenknochen", ["Fersenknochen", "Ferse", "Fersenbein"]],
     ["mittelfuss", "Mittelfußknochen", ["Mittelfußknochen", "Mittelfuss", "Mittelfussknochen"]], ["zehen", "Zehenknochen", ["Zehenknochen", "Zehen"]],
+    ["knie", "Kniegelenk", ["Kniegelenk", "Knie"]], ["oberarm", "Oberarmknochen", ["Oberarmknochen", "Oberarm"]],
   ];
   const SKELETT_FAKTEN = [
     ["Welcher Teil des Skeletts schützt Herz und Lunge?", "Rippen", ["Schulterblatt", "Beckenknochen", "Zehenknochen"]],
@@ -70,13 +79,20 @@
     ["Welchen Vorteil hat der Zehengang für den Hund?", "Er kann schnell und ausdauernd laufen", ["Er kann besser klettern", "Er kann besser schwimmen", "Er kann leiser schlafen"]],
     ["Welcher Knochen im Hinterbein liegt zwischen Oberschenkel und Ferse?", "Unterschenkelknochen", ["Schulterblatt", "Rippen", "Zehenknochen"]],
     ["Wozu dient das Skelett?", "Es gibt dem Körper Halt und schützt die Organe", ["Es macht das Tier schwerer", "Es wärmt den Körper", "Es erzeugt die Milch"]],
-    ["Wie nennt man das Gelenk am Hinterbein, das nach hinten abgeknickt aussieht?", "Ferse", ["Schulterblatt", "Wirbelsäule", "Rippe"]],
+    ["Wie nennt man den Knochen am Hinterbein, der nach hinten absteht und beim Hund nicht den Boden berührt?", "Fersenknochen", ["Schulterblatt", "Wirbelsäule", "Rippe"]],
+    ["Aus welchen zwei Knochen besteht der Unterschenkel?", "Schienbein und Wadenbein", ["Schulterblatt und Beckenknochen", "Oberschenkel und Fersenbein", "Rippe und Wirbel"]],
+    ["Welches Gelenk verbindet Oberschenkelknochen und Unterschenkelknochen?", "Das Kniegelenk", ["Das Schulterblatt", "Der Fersenknochen", "Die Wirbelsäule"]],
+    ["Womit sind die Vorder- und Hinterbeine am Rumpfskelett befestigt?", "Über Schulterblätter und Beckenknochen", ["Über die Rippen", "Über den Schädel", "Über die Zehenknochen"]],
+    ["Welche Knochen berühren beim Hund den Boden?", "Nur die Zehenknochen", ["Fersen- und Fußwurzelknochen", "Die ganzen Mittelfußknochen", "Der Unterschenkel"]],
+    ["Wie nennt man den Gang des Menschen im Gegensatz zum Hund?", "Sohlengänger", ["Zehengänger", "Hetzjäger", "Nasentier"]],
+    ["Was ist der Hund, weil er eine Wirbelsäule hat?", "Ein Wirbeltier", ["Ein Wirbelwind", "Ein Weichtier", "Ein Insekt"]],
+    ["Wie heißen die Knochen im Fuß des Hundes von der Ferse bis zu den Zehen?", "Fersenknochen, Fußwurzelknochen, Mittelfußknochen, Zehenknochen", ["Schienbein, Wadenbein, Oberschenkel, Zehen", "Schulterblatt, Rippen, Becken, Wirbel", "Oberarm, Knie, Ferse, Schädel"]],
   ];
   const GEBISS = [
     ["schneide", "Schneidezahn", "Fleischreste von Knochen abzupfen", ["Schneidezahn", "Schneidezähne"]],
     ["eck", "Eckzahn (Fangzahn)", "die Beute packen, festhalten und töten", ["Eckzahn", "Fangzahn", "Eckzähne", "Fangzähne"]],
     ["reiss", "Reißzahn", "Fleisch und Beute zerschneiden", ["Reißzahn", "Reisszahn"]],
-    ["backen", "Backenzahn", "Knochen und Sehnen zerbeißen", ["Backenzahn", "Backenzähne"]],
+    ["backen", "Backenzahn", "die Nahrung zerkleinern und Knochen zerbeißen", ["Backenzahn", "Backenzähne"]],
   ];
 
   const GEBISS_FAKTEN = [
@@ -86,11 +102,31 @@
     ["Welcher Zahn zerschneidet die Beute?", "Der Reißzahn", ["Der Schneidezahn", "Der Eckzahn", "Das Zahnfleisch"]],
     ["Warum nennt man den Hund einen Fleischfresser?", "Sein Gebiss ist zum Packen, Zerschneiden und Zerbeißen von Fleisch und Knochen gebaut", ["Er mag kein Gemüse", "Er kocht sein Fleisch", "Er hat große Ohren"]],
     ["Wozu braucht der Hund die langen Eckzähne?", "Zum Packen, Festhalten und Töten der Beute", ["Zum Kauen von Gras", "Zum Zupfen von Fleischresten", "Zum Zerreiben von Körnern"]],
-    ["Welche Zähne zerbeißen Knochen und Sehnen?", "Die Backenzähne", ["Die Schneidezähne", "Die Fangzähne", "Keine, der Hund schluckt alles ganz"]],
+    ["Welche Zähne zerkleinern hinten im Maul die Nahrung?", "Die Backenzähne", ["Die Schneidezähne", "Die Fangzähne", "Keine, der Hund schluckt alles ganz"]],
+    ["Wie heißen die jeweils zwei größten, kräftigsten und schärfsten Backenzähne im Ober- und im Unterkiefer?", "Reißzähne", ["Fangzähne", "Schneidezähne", "Milchzähne"]],
+    ["Wofür nutzt der Hund die kleinen Schneidezähne?", "Zur Fellpflege und zum Abschaben der Fleischreste von Knochen", ["Zum Töten der Beute", "Zum Zerschneiden großer Fleischstücke", "Zum Mahlen von Körnern"]],
+    ["Wie nennt man es, dass der Bau der Zähne zu ihrer Aufgabe passt?", "Angepasstheit", ["Zahnformel", "Züchtung", "Rangordnung"]],
+    ["Was fasst die Zahnformel zusammen?", "Die Anordnung und Anzahl der Zähne", ["Das Alter des Hundes", "Die Rasse des Hundes", "Die Größe des Hundes"]],
     ["Was unterscheidet das Raubtiergebiss von einem Pflanzenfressergebiss?", "Spitze, scharfe Zähne zum Packen und Zerschneiden statt flacher Mahlzähne", ["Es hat gar keine Zähne", "Es hat nur flache Mahlzähne", "Es hat besonders viele Schneidezähne zum Rupfen von Gras"]],
     ["Welcher Zahn ist besonders groß und gezackt?", "Der Reißzahn", ["Der Schneidezahn", "Der Milchzahn", "Der kleinste Backenzahn"]],
     ["Welche Zähne sitzen ganz vorne im Maul des Hundes?", "Die kleinen Schneidezähne", ["Die Reißzähne", "Die Backenzähne", "Die Fangzähne"]],
     ["Wie nennt man ein Gebiss mit Fangzähnen und Reißzahn?", "Raubtiergebiss", ["Pflanzenfressergebiss", "Nagergebiss", "Allesfressergebiss"]],
+  ];
+
+  // Zahnformel aus dem Buch (rechts und links gleich): Backenzähne, Eckzahn, Schneidezähne (3+3), Eckzahn, Backenzähne
+  const ZAHNFORMEL = { Oberkiefer: [6, 1, 3, 3, 1, 6], Unterkiefer: [7, 1, 3, 3, 1, 7] };
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  const ZAHL_FRAGEN = [
+    ["Wie viele <b>Schneidezähne</b> hat der Hund im Oberkiefer?", ZAHNFORMEL.Oberkiefer[2] + ZAHNFORMEL.Oberkiefer[3], "Die Zahnformel zeigt in der Mitte 3 und 3."],
+    ["Wie viele <b>Schneidezähne</b> hat der Hund im Unterkiefer?", ZAHNFORMEL.Unterkiefer[2] + ZAHNFORMEL.Unterkiefer[3], "Die Zahnformel zeigt in der Mitte 3 und 3."],
+    ["Wie viele <b>Eckzähne (Fangzähne)</b> hat der Hund im Oberkiefer?", ZAHNFORMEL.Oberkiefer[1] + ZAHNFORMEL.Oberkiefer[4], "Einer auf jeder Seite: 1 und 1."],
+    ["Wie viele <b>Eckzähne (Fangzähne)</b> hat der Hund im Unterkiefer?", ZAHNFORMEL.Unterkiefer[1] + ZAHNFORMEL.Unterkiefer[4], "Einer auf jeder Seite: 1 und 1."],
+    ["Wie viele <b>Backenzähne</b> hat der Hund im Oberkiefer insgesamt?", ZAHNFORMEL.Oberkiefer[0] + ZAHNFORMEL.Oberkiefer[5], "Rechne die Zahlen außen zusammen: 6 + 6."],
+    ["Wie viele <b>Backenzähne</b> hat der Hund im Unterkiefer insgesamt?", ZAHNFORMEL.Unterkiefer[0] + ZAHNFORMEL.Unterkiefer[5], "Rechne die Zahlen außen zusammen: 7 + 7."],
+    ["Wie viele Zähne hat der Hund im <b>Oberkiefer</b> insgesamt?", sum(ZAHNFORMEL.Oberkiefer), "Zähle alle Zahlen der oberen Zeile zusammen."],
+    ["Wie viele Zähne hat der Hund im <b>Unterkiefer</b> insgesamt?", sum(ZAHNFORMEL.Unterkiefer), "Zähle alle Zahlen der unteren Zeile zusammen."],
+    ["Wie viele Zähne hat ein Hund <b>insgesamt</b> (Oberkiefer und Unterkiefer)?", sum(ZAHNFORMEL.Oberkiefer) + sum(ZAHNFORMEL.Unterkiefer), "Oberkiefer plus Unterkiefer."],
+    ["Wie viele <b>Reißzähne</b> hat der Hund insgesamt? (je zwei im Ober- und im Unterkiefer)", 4, "2 im Oberkiefer und 2 im Unterkiefer."],
   ];
 
   // ---------- Daten: Hunderassen und Hundearbeit ----------
@@ -98,7 +134,7 @@
   const RASSEN = [
     ["Bernhardiner", "Such- und Rettungshund"], ["Rauhaardackel", "Jagdhund"], ["Sibirian Husky", "Schlittenhund"], ["Boxer", "Wachhund"],
     ["Zwergpudel", "Begleithund"], ["Foxterrier", "Jagdhund"], ["Yorkshireterrier", "Begleithund"], ["Irischer Setter", "Jagdhund"], ["Beagle", "Jagdhund"],
-    ["Windhund (Sloughi)", "Jagdhund"], ["Chihuahua", "Begleithund"], ["Alaskan Malamute", "Schlittenhund"],
+    ["Windhund (Sloughi)", "Jagdhund"], ["Deutscher Schäferhund", "Wachhund"], ["Englische Bulldogge", "Wachhund"], ["Chihuahua", "Begleithund"], ["Alaskan Malamute", "Schlittenhund"],
   ];
   const ARBEIT = [
     ["Jagen", "Jagdhund"], ["Menschen in den Bergen suchen und retten", "Such- und Rettungshund"], ["Schafe hüten", "Hütehund"], ["Blinden im Alltag helfen", "Blindenhund"],
@@ -148,19 +184,68 @@
     ["Es ist ein Haustier des Menschen.", "beide"], ["Es ist ein Landraubtier.", "beide"],
   ];
 
+  // ---------- Daten: Vom Wolf zum Hund (Buch Seite 24 bis 27) ----------
+  const WOLF_FAKTEN = [
+    ["Was ist die Stammform aller Haushunde?", "Der Wolf", ["Der Fuchs", "Der Schakal", "Der Luchs"]],
+    ["Wie nennt man den Vorgang, bei dem aus einem Wildtier ein Haustier wird?", "Domestizierung", ["Züchtung", "Rudelbildung", "Fortpflanzung"]],
+    ["Wie nennt man es, wenn der Mensch gezielt Tiere mit gewünschten Eigenschaften verpaart?", "Züchtung", ["Domestizierung", "Rangordnung", "Drohverhalten"]],
+    ["Wie nennt man die vielen verschiedenen Hundearten, die durch Züchtung entstanden sind?", "Rassen", ["Rudel", "Mischlinge", "Arten"]],
+    ["Wie nennt man die Nachkommen von Tieren unterschiedlicher Rassen?", "Mischlinge", ["Rassehunde", "Rudel", "Wolfshunde"]],
+    ["Zu wie vielen Arten gehören alle Hunde?", "Zu einer Art, sie können sich untereinander fortpflanzen", ["Jede Rasse ist eine eigene Art", "Zu zwei Arten, großen und kleinen Hunden", "Zu keiner Art"]],
+    ["Wie nennt man die Familiengruppe der Wölfe?", "Rudel", ["Herde", "Schwarm", "Horde"]],
+    ["Wie viele Tiere leben meist in einem Wolfsrudel?", "5 bis 10", ["2 bis 3", "20 bis 30", "mehr als 100"]],
+    ["Wer führt ein Wolfsrudel an?", "Ein männliches und ein weibliches Leittier (Leitwolf und Leitwölfin)", ["Das älteste Tier", "Das kleinste Tier", "Jedes Tier abwechselnd"]],
+    ["Wie nennt man die strenge Ordnung im Rudel, in der jedes Mitglied seinen Platz hat?", "Rangordnung", ["Rudelbildung", "Zucht", "Drohverhalten"]],
+    ["Wer darf im Rudel zuerst fressen?", "Leitwolf und Leitwölfin", ["Die jüngsten Wölfe", "Alle gleichzeitig", "Der schwächste Wolf"]],
+    ["Wie nennt man es, wenn ein Wolf Körper und Rute aufrichtet, um größer zu wirken?", "Imponierverhalten", ["Drohverhalten", "Demutsverhalten", "Angstverhalten"]],
+    ["Wie nennt man es, wenn ein Wolf die Ohren anlegt, knurrt und die Zähne zeigt?", "Drohverhalten", ["Imponierverhalten", "Demutsverhalten", "Spielverhalten"]],
+    ["Wie nennt man es, wenn ein Wolf die Rute einzieht, sich auf den Rücken legt und die Kehle zeigt?", "Demutsverhalten", ["Imponierverhalten", "Drohverhalten", "Jagdverhalten"]],
+    ["Was bedeutet „imponieren“?", "Beeindrucken", ["Davonlaufen", "Knurren", "Fressen"]],
+    ["Was ist mit „Rute“ bei einem Hund oder Wolf gemeint?", "Der Schwanz", ["Das Ohr", "Das Bein", "Die Schnauze"]],
+    ["Was ist ein „Rüde“?", "Ein männlicher Hund", ["Ein weiblicher Hund", "Ein junger Hund", "Ein Wolfsrudel"]],
+    ["Wann suchten Wölfe schon die Nähe der Menschen?", "Vor mehr als 30 000 Jahren in der Steinzeit", ["Vor 300 Jahren", "Vor 50 Jahren", "Erst im Mittelalter"]],
+    ["Wie alt wird ein Hund meistens?", "10 bis 15 Jahre", ["2 bis 4 Jahre", "30 bis 40 Jahre", "50 Jahre"]],
+    ["Wie verständigt sich der Hund mit anderen?", "Durch Körpersprache und Laute", ["Nur durch Bellen", "Nur durch Gerüche", "Gar nicht"]],
+    ["Wie markiert der Hund auffallende Stellen in seinem Revier?", "Mit Urin", ["Mit Kot", "Mit Farbe", "Mit Haaren"]],
+  ];
+  const WOLF_STIMMT = [
+    ["Der Wolf ist die Stammform aller Haushunde.", true], ["Hunde verschiedener Rassen können keine gemeinsamen Nachkommen haben.", false],
+    ["Wölfe leben meist als Einzelgänger.", false], ["Im Wolfsrudel hat jedes Mitglied seinen Platz.", true],
+    ["Ein Wolf mit Demutsverhalten unterwirft sich dem ranghöheren Tier.", true], ["Beim Imponierverhalten macht sich der Wolf klein.", false],
+    ["Durch das Demutsverhalten kommt es im Rudel selten zu blutigen Kämpfen.", true], ["Die Domestizierung machte aus dem Wildtier Wolf ein Haustier.", true],
+    ["Der Hund versteht sich durch Körpersprache.", true], ["Der Hund markiert auffallende Stellen seines Reviers mit Urin.", true],
+    ["Wölfe jagen ihre Beute über lange Strecken, bis sie erschöpft ist.", true], ["Alle Hunde gehören zu verschiedenen Arten.", false],
+    ["Durch Züchtung sind viele unterschiedliche Hunderassen entstanden.", true], ["Mit Imponierverhalten wollen Wölfe beeindrucken.", true],
+  ];
+  const WOLF_LUECKEN = [
+    ["Der Wolf ist die Stammform aller ___.", ["Haushunde", "Haushund"], "Haushunde, Füchse, Katzen"],
+    ["Der Vorgang, bei dem aus einem Wildtier ein Haustier wird, heißt ___.", ["Domestizierung"], "Domestizierung, Züchtung, Rangordnung"],
+    ["Wenn der Mensch gezielt Tiere mit gewünschten Eigenschaften verpaart, nennt man das ___.", ["Züchtung", "Zucht"], "Züchtung, Domestizierung, Dressur"],
+    ["Die vielen verschiedenen Hundearten heißen ___.", ["Rassen"], "Rassen, Rudel, Mischlinge"],
+    ["Die Nachkommen von Tieren verschiedener Rassen heißen ___.", ["Mischlinge"], "Mischlinge, Rassen, Rudel"],
+    ["Die Familiengruppe der Wölfe heißt ___.", ["Rudel"], "Rudel, Herde, Schwarm"],
+    ["Im Rudel herrscht eine strenge ___.", ["Rangordnung"], "Rangordnung, Zucht, Jagd"],
+    ["Um größer zu wirken, zeigt der Wolf ___.", ["Imponierverhalten"], "Imponierverhalten, Demutsverhalten, Drohverhalten"],
+    ["Wer sich dem ranghöheren Tier unterwirft, zeigt ___.", ["Demutsverhalten"], "Demutsverhalten, Imponierverhalten, Drohverhalten"],
+    ["Ein Wolf, der die Ohren anlegt, knurrt und die Zähne zeigt, zeigt ___.", ["Drohverhalten"], "Drohverhalten, Demutsverhalten, Imponierverhalten"],
+    ["Ein Wolf ist ein ___, weil er seine Beute über lange Strecken verfolgt.", ["Hetzjäger"], "Hetzjäger, Schleichjäger, Nasentier"],
+  ];
+
   // ---------- Zeichnungen ----------
   const RED = "#e0364d", LINE = "#7a6a58", BONE = "#f4ead6", PINK = "#f3b3bb";
   // Hundeskelett von der Seite (Kopf rechts), ein Teil rot markiert
   function skelettSvg(hl) {
     const g = (k, body) => `<g data-teil="${k}" fill="${hl === k ? PINK : BONE}" stroke="${hl === k ? RED : LINE}" stroke-width="${hl === k ? 3.4 : 1.8}" stroke-linejoin="round" stroke-linecap="round">${body}</g>`;
     const spine = hl === "wirbel" ? RED : LINE;
-    const front = `<g fill="#ebe3d3" stroke="#a39682" stroke-width="1.6" stroke-linejoin="round"><path d="M214 100 L230 100 L228 142 L218 142Z"/><path d="M218 142 L228 142 L231 184 L223 184Z"/><path d="M222 184 L232 184 L234 202 L226 202Z"/><path d="M225 202 L250 203 L250 209 L223 209Z"/></g>`;
+    const front = `<g fill="#ebe3d3" stroke="#a39682" stroke-width="1.6" stroke-linejoin="round"><path d="M218 142 L228 142 L231 184 L223 184Z"/><path d="M222 184 L232 184 L234 202 L226 202Z"/><path d="M225 202 L250 203 L250 209 L223 209Z"/></g>`;
     return `<svg class="nwfig skel" viewBox="0 0 320 214" role="img" aria-label="Skelett eines Hundes, ein Teil ist rot markiert"><line x1="10" y1="211" x2="310" y2="211" stroke="#b9c6d2" stroke-width="2"/>${front}`
+      + g("oberarm", `<path d="M214 100 L230 100 L228 142 L218 142 Z"/>`)
       + g("rippen", `<path d="M140 66 Q132 100 150 122 Q175 130 200 114 Q206 90 196 66 Z"/><path d="M152 68 Q146 100 160 122 M166 68 Q160 102 172 126 M180 68 Q176 102 184 126 M194 70 Q192 100 196 118" fill="none"/>`)
       + g("schulter", `<path d="M212 66 L238 72 L230 110 L208 102 Z"/>`)
       + g("becken", `<path d="M82 66 L110 62 L116 98 L92 106 Q80 90 82 66 Z"/>`)
       + g("oberschenkel", `<path d="M96 98 L124 142 L114 150 L88 108 Z"/>`)
       + g("unterschenkel", `<path d="M124 142 L96 172 L84 164 L112 134 Z"/>`)
+      + g("knie", `<path d="M110 139 L120 131 L131 137 L132 149 L121 155 L110 149 Z"/>`)
       + g("ferse", `<path d="M96 174 L82 154 L72 160 L86 184 Z"/>`)
       + g("mittelfuss", `<path d="M86 178 L102 178 L106 202 L94 202 Z"/>`)
       + g("zehen", `<path d="M94 202 L124 203 L124 209 L92 209 Z"/><path d="M104 203 V209 M114 203 V209" fill="none"/>`)
@@ -241,6 +326,11 @@
     return choiceTask(Object.assign({ q, hints: ["Lies in deinem Heft nach: „Der Hund hat ein Raubtiergebiss“.", "Schneidezähne zupfen, Eckzähne (Fangzähne) packen, Reißzahn zerschneidet, Backenzähne zerbeißen."], solution: right }, o));
   });
 
+  gen("bio.gebiss.zahl", "gebiss", "Zahnformel: Wie viele Zähne?", (r) => {
+    const [q, ans, hint] = r.pick(ZAHL_FRAGEN);
+    return numTask({ q, ans, hints: [hint, "Die Zahnformel im Buch (Seite 21): Oberkiefer 6 1 3 3 1 6, Unterkiefer 7 1 3 3 1 7."], solution: `${ans} Zähne`, pts: 1 });
+  });
+
   // ---------- Generatoren: Hunderassen und Hundearbeit ----------
   gen("bio.rassen", "rassen", "Rasse und Verwendungszweck", (r, lvl) => {
     const [rasse, zweck] = r.pick(RASSEN);
@@ -288,6 +378,21 @@
     return choiceTask(Object.assign({ q: `Passt das zum Hund, zur Katze oder zu beiden?<br><span class="nwsatz">${s}</span>`, hints: ["Hund = Hetzjäger, Katze = Schleichjäger. Beide sind Säugetiere, Zehengänger und Landraubtiere.", lvl === 1 ? "Der Hund hat Krallen, die immer draußen sind. Bei der Katze kann man sie einziehen." : "Überlege, was beide gemeinsam haben."], solution: wer === "beide" ? "beide" : wer }, o));
   });
 
+  // ---------- Generatoren: Vom Wolf zum Hund ----------
+  gen("bio.wolf.fakt", "wolf", "Vom Wolf zum Hund: Fragen", (r) => {
+    const [q, right, wrong] = r.pick(WOLF_FAKTEN);
+    const o = opts(r, right, [right].concat(wrong));
+    return choiceTask(Object.assign({ q, hints: ["Lies im Buch nach: „Der Hund – ein beliebtes Haustier“ (Seite 24 und 25).", "Der Wolf ist die Stammform aller Haushunde. Im Wolfsrudel gibt es eine strenge Rangordnung."], solution: right }, o));
+  });
+  gen("bio.wolf.stimmt", "wolf", "Wolf und Hund: Stimmt das?", (r) => {
+    const [s, ok] = r.pick(WOLF_STIMMT);
+    return choiceTask({ q: `Stimmt die Aussage? <span class="nwsatz">${s}</span>`, options: ["stimmt", "stimmt nicht"], correct: ok ? 0 : 1, hints: ["Denk an das Buch, Seite 24 und 25.", ok ? "Diese Aussage steht so im Buch." : "Tipp: Hier ist etwas verdreht. Was müsste richtig heißen?"], solution: ok ? "stimmt" : "stimmt nicht" });
+  });
+  gen("bio.wolf.luecke", "wolf", "Wolf und Hund: Lückentext", (r, lvl) => {
+    const [s, ans, box] = r.pick(WOLF_LUECKEN);
+    return textTask({ q: `Ergänze: <span class="nwsatz">${s.replace("___", '<span class="kbx">?</span>')}</span>${lvl === 1 ? `<br><small>Wortkasten: ${box}</small>` : ""}`, accept: ans, hints: [`Wortkasten: ${box}`, "Das Wort beginnt mit " + ans[0][0].toUpperCase() + "."], solution: ans[0] });
+  });
+
   // ---------- Themen ----------
   const BIOT = [
     { id: "hund", name: "Der Hund – ein Säugetier", icon: "🐕", lern: true, fach: "bio" },
@@ -295,14 +400,16 @@
     { id: "gebiss", name: "Das Raubtiergebiss", icon: "🦷", lern: true, fach: "bio" },
     { id: "rassen", name: "Hunderassen & Hundearbeit", icon: "🐶", lern: true, fach: "bio" },
     { id: "welpe", name: "Ein Welpe wird geboren", icon: "🍼", lern: true, fach: "bio" },
-    { id: "katze", name: "Die Katze – ein Schleichjäger", icon: "🐈", lern: true, fach: "bio" },
+    { id: "wolf", name: "Vom Wolf zum Hund", icon: "🐺", lern: true, fach: "bio" },
+    { id: "katze", name: "Die Katze – ein Schleichjäger", icon: "🐈", lern: false, fach: "bio" },
   ];
   BIOT.forEach((t) => { t.gens = Object.values(G).filter((g) => g.topic === t.id).map((g) => g.id); TOPICS.push(t); });
   const MERKE = {
     hund: "Der Hund ist ein Säugetier und das älteste Haustier des Menschen. Er ist ein Nasentier (feine Spürnase), ein Ohrentier (hört hohe Töne), ein Zehengänger (läuft nur auf den Zehen, schnell und ausdauernd) und ein Hetzjäger (verfolgt die Beute lange). Er gehört zu den Landraubtieren.",
-    skelett: "Hundeskelett: Schädel, Wirbelsäule, Schulterblatt, Rippen, Beckenknochen. Das Hinterbein von oben nach unten: Oberschenkelknochen, Unterschenkelknochen, Ferse, Mittelfußknochen, Zehenknochen. Der Hund tritt nur mit den Zehen auf (Zehengänger).",
-    gebiss: "Raubtiergebiss: Die kleinen Schneidezähne zupfen Fleischreste von Knochen ab. Die langen, dolchartigen Eckzähne sind Fangzähne (packen, festhalten, töten). Im Ober- und Unterkiefer gibt es je einen großen, gezackten Reißzahn (zerschneidet die Beute). Die Backenzähne zerbeißen Knochen und Sehnen.",
-    rassen: "Es gibt über 400 gezüchtete Hunderassen. Man züchtet sie für Aufgaben: Jagdhund, Schlittenhund, Begleithund, Wachhund, Hütehund, Such- und Rettungshund, Blindenhund, Polizeihund (Spürhund). Der Körperbau passt zur Aufgabe.",
+    skelett: "Hundeskelett: Schädel, Wirbelsäule, Schulterblatt, Rippen, Beckenknochen. Das Hinterbein von oben nach unten: Oberschenkelknochen, Kniegelenk, Unterschenkelknochen (Schienbein und Wadenbein), Fersenknochen, Fußwurzelknochen, Mittelfußknochen, Zehenknochen. Das Vorderbein beginnt mit dem Oberarmknochen. Der Hund tritt nur mit den Zehenknochen auf (Zehengänger), der Mensch ist ein Sohlengänger. Der Hund ist ein Wirbeltier.",
+    gebiss: "Raubtiergebiss: Die kleinen Schneidezähne zupfen Fleischreste von Knochen ab. Die langen, dolchartigen Eckzähne sind Fangzähne (packen, festhalten, töten). Im Ober- und Unterkiefer gibt es je einen großen, gezackten Reißzahn (zerschneidet die Beute). Die Backenzähne zerkleinern die Nahrung; die zwei größten, schärfsten Backenzähne in jedem Kiefer heißen Reißzähne. Zahnformel: Oberkiefer 6 1 3 3 1 6, Unterkiefer 7 1 3 3 1 7, zusammen 42 Zähne.",
+    rassen: "Es gibt über 400 gezüchtete Hunderassen. Man züchtet sie für Aufgaben: Jagdhund (Dackel, Foxterrier, Irischer Setter, Beagle, Windhund), Schlittenhund (Husky), Begleithund (Zwergpudel, Yorkshireterrier), Wachhund (Boxer, Deutscher Schäferhund, Englische Bulldogge), Such- und Rettungshund (Bernhardiner), Hütehund, Blindenhund, Polizeihund (Spürhund).",
+    wolf: "Der Wolf ist die Stammform aller Haushunde. Domestizierung: aus dem Wildtier wird ein Haustier. Züchtung: gezieltes Verpaaren, so entstehen Rassen; Nachkommen verschiedener Rassen heißen Mischlinge. Wolfsrudel: 5 bis 10 Tiere mit Leitwolf und Leitwölfin und strenger Rangordnung. Imponierverhalten (beeindrucken), Drohverhalten, Demutsverhalten (unterwerfen).",
     welpe: "Bei der Hündin: Aufreißen der Fruchtblase, Zerbeißen der Nabelschnur, Trockenlecken, Milchbildung. Beim Welpen: unbeholfenes Kriechen, Pendeln mit dem Kopf, Saugen an den Zitzen, Milchtritt, Trinken der Milch.",
     katze: "Die Katze ist ein Schleichjäger (schleicht sich an und springt kurz), der Hund ein Hetzjäger. Katzen haben einziehbare Krallen (Geheimwaffe), sehen in der Dämmerung und nachts sehr gut (jeder Lichtstrahl wird doppelt genutzt), haben Tasthaare und bewegliche Ohren. Früher schützten sie die Getreidevorräte.",
   };
@@ -313,15 +420,15 @@
     const mk = (g, l) => A.make(g, l, s());
     const parts = [
       ["Der Hund – ein Säugetier", [["bio.typ", 2], ["bio.typ", 3], ["bio.stimmt", 1], ["bio.stimmt", 1], ["bio.luecke", 2]]],
-      ["Skelett und Gebiss", [["bio.skelett.bild", 2], ["bio.skelett.bild", 3], ["bio.gebiss.bild", 2], ["bio.gebiss.bild", 3], ["bio.gebiss.funktion", 2]]],
+      ["Skelett und Gebiss", [["bio.skelett.bild", 2], ["bio.skelett.bild", 3], ["bio.gebiss.bild", 2], ["bio.gebiss.bild", 3], ["bio.gebiss.funktion", 2], ["bio.gebiss.zahl", 2]]],
       ["Hunderassen und Hundearbeit", [["bio.rassen", 2], ["bio.rassen", 3], ["bio.arbeit", 2], ["bio.arbeit", 3]]],
       ["Ein Welpe wird geboren", [["bio.welpe.reihe", 2], ["bio.welpe.reihe", 2], ["bio.welpe.fakt", 2], ["bio.welpe.fakt", 2]]],
-      ["Die Katze – ein Schleichjäger", [["bio.katze.fakt", 2], ["bio.katze.stimmt", 1], ["bio.katze.stimmt", 1], ["bio.vergleich", 2], ["bio.vergleich", 2]]],
+      ["Vom Wolf zum Hund", [["bio.wolf.fakt", 2], ["bio.wolf.stimmt", 1], ["bio.wolf.stimmt", 1], ["bio.wolf.luecke", 2], ["bio.wolf.fakt", 2]]],
     ];
     return parts.map(([title, ts], i) => ({ nr: i + 1, title, tasks: ts.map(([g, l]) => { const t = mk(g, l); if (t.kind === "text") t.pts = Math.max(t.pts, 2); return t; }) }));
   }
 
-  const api = { TYPEN, TYP_AUSSAGEN, STIMMT, LUECKEN, SKELETT, SKELETT_FAKTEN, GEBISS, GEBISS_FAKTEN, ZWECKE, RASSEN, ARBEIT, HUENDIN, WELPE, WELPE_FAKTEN, KATZE_FAKTEN, KATZE_STIMMT, VERGLEICH, MERKE, norm, skelettSvg, gebissSvg, probearbeit };
+  const api = { TYPEN, TYP_AUSSAGEN, STIMMT, LUECKEN, SKELETT, SKELETT_FAKTEN, GEBISS, GEBISS_FAKTEN, ZWECKE, ZAHNFORMEL, ZAHL_FRAGEN, WOLF_FAKTEN, WOLF_STIMMT, WOLF_LUECKEN, RASSEN, ARBEIT, HUENDIN, WELPE, WELPE_FAKTEN, KATZE_FAKTEN, KATZE_STIMMT, VERGLEICH, MERKE, norm, skelettSvg, gebissSvg, probearbeit };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.BIO = api;
 })(typeof self !== "undefined" ? self : this);
