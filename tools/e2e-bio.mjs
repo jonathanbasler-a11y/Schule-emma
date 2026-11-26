@@ -49,9 +49,9 @@ const solveIn = (p, sel, idx, wrong) => p.evaluate(([sel, idx, wrong]) => {
 {
   const { ctx, p } = await open({ width: 1180, height: 820 }, { fach: "bio" });
   check(await p.locator(".fachtabs button").count() === 3 && await p.locator('.fachtabs button.on[data-v="bio"]').count() === 1, "Drei Fächer, Biologie ist vorgewählt");
-  check(await p.locator(".tcard").count() === 7, "7 Themen im Fach Biologie");
+  check(await p.locator(".tcard").count() === 10, "10 Themen im Fach Biologie");
   const names = (await p.locator(".tcard .tname").allTextContents()).join("|");
-  check(/Hund/.test(names) && /skelett/i.test(names) && /gebiss/i.test(names) && /Hunderassen/.test(names) && /Welpe/.test(names) && /Wolf/.test(names) && /Katze/.test(names), "Themen: Hund, Skelett, Gebiss, Rassen, Welpe, Wolf, Katze");
+  check(/Hund/.test(names) && /skelett/i.test(names) && /gebiss/i.test(names) && /Hunderassen/.test(names) && /Welpe/.test(names) && /Wolf/.test(names) && /Körpersprache/.test(names) && /Geruchssinn/.test(names) && /Hundehaltung/.test(names) && /Katze/.test(names), "Themen: Hund, Skelett, Gebiss, Rassen, Welpe, Wolf, Körpersprache, Geruchssinn, Hundehaltung, Katze");
   check(await p.locator(".tcard.extra").count() === 1 && /Katze/.test(await p.locator(".tcard.extra").textContent()), "Nur die Katze ist als „nicht auf dem Lernzettel“ markiert");
   check(await p.evaluate(() => window.__EMMA.S.set.dateBio) === "2026-12-04" && /Bio-Arbeit/.test(await p.textContent(".countdown")), "Termin der Bio-Arbeit ist der 4.12., Countdown nennt sie: " + (await p.textContent(".countdown")).trim());
   check(await p.locator(".goal").count() === 1, "Karte „Mein Weg zur Eins“ auch in Biologie");
@@ -134,14 +134,14 @@ const solveIn = (p, sel, idx, wrong) => p.evaluate(([sel, idx, wrong]) => {
   await p.click('[data-act="examStart"]');
   await p.waitForSelector(".etask");
   const nParts = await p.locator(".apart").count(), nTasks = await p.locator(".etask").count();
-  check(nParts === 5 && nTasks >= 20, `Probearbeit: ${nParts} Aufgabengruppen, ${nTasks} Aufgaben`);
+  check(nParts === 7 && nTasks >= 30, `Probearbeit: ${nParts} Aufgabengruppen, ${nTasks} Aufgaben`);
   await shot(p, "probearbeit");
   for (let i = 0; i < nTasks; i++) await solveIn(p, ".etask", i);
   await p.click('[data-act="examSubmit"]');
   await p.waitForSelector(".note-big");
   const note = (await p.textContent(".note-big b")).trim(), pct = await p.evaluate(() => window.__EMMA.S.exams[0].pct);
   check(note === "1" && pct === 100, `Alles richtig: Note ${note}, ${pct} %`);
-  check(/Wolf/.test(await p.textContent(".result")) && /Welpe/.test(await p.textContent(".result")) && !/Katze/.test(await p.textContent(".result")), "Auswertung nach Themen");
+  check(/Körpersprache/.test(await p.textContent(".result")) && /Welpe/.test(await p.textContent(".result")) && !/Katze/.test(await p.textContent(".result")), "Auswertung nach Themen");
   await p.click('[data-act="home"]');
   check(/100 %/.test(await p.textContent(".goal")) && /geschafft/.test(await p.textContent(".goal")), "Eins-Karte zeigt die beste Probearbeit");
   await p.click('[data-act="examIntro"]'); await p.click('[data-act="examStart"]');
