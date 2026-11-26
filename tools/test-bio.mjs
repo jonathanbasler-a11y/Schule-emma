@@ -14,12 +14,15 @@ const ok = (c, m) => { n++; assert.ok(c, m); };
 ok(B.TYPEN.length === 4 && B.TYPEN.every((t) => B.TYP_AUSSAGEN[t].length >= 3), "vier Typen mit je mindestens 3 Aussagen");
 const alle = Object.values(B.TYP_AUSSAGEN).flat();
 ok(new Set(alle).size === alle.length, "Typ-Aussagen sind einmalig (jede passt zu genau einem Typ)");
-ok(B.SKELETT.length === 10 && new Set(B.SKELETT.map((x) => x[0])).size === 10, "zehn Teile des Skeletts");
+ok(B.SKELETT.length === 12 && new Set(B.SKELETT.map((x) => x[0])).size === 12, "zwölf Teile des Skeletts (10 vom Arbeitsblatt, dazu Knie und Oberarm)");
+ok(B.SKELETT.slice(0, 10).map((x) => x[1]).join(",") === "Schädel,Wirbelsäule,Schulterblatt,Beckenknochen,Rippen,Oberschenkelknochen,Unterschenkelknochen,Fersenknochen,Mittelfußknochen,Zehenknochen", "Nummern 1 bis 10 wie auf dem Arbeitsblatt");
+ok(JSON.stringify(B.ZAHNFORMEL) === '{"Oberkiefer":[6,1,3,3,1,6],"Unterkiefer":[7,1,3,3,1,7]}' && [].concat(B.ZAHNFORMEL.Oberkiefer, B.ZAHNFORMEL.Unterkiefer).reduce((a, b) => a + b, 0) === 42, "Zahnformel wie im Buch, 42 Zähne");
+ok(B.RASSEN.some(([r, z]) => r === "Deutscher Schäferhund" && z === "Wachhund") && B.RASSEN.some(([r, z]) => r === "Englische Bulldogge" && z === "Wachhund") && B.RASSEN.some(([r, z]) => r === "Boxer" && z === "Wachhund"), "Rassen wie auf dem Arbeitsblatt (Schäferhund, Bulldogge, Boxer: Wachhund)");
 ok(B.HUENDIN.length === 4 && B.WELPE.length === 5, "Welpe: 4 Schritte bei der Hündin, 5 beim Welpen");
 ok(B.WELPE[0] === "Unbeholfenes Kriechen" && B.WELPE[4] === "Trinken der Milch" && B.HUENDIN[0].startsWith("Aufreißen"), "Reihenfolge wie auf dem Arbeitsblatt");
 ok(B.RASSEN.every(([, z]) => B.ZWECKE.includes(z)) && B.ARBEIT.every(([, z]) => B.ZWECKE.includes(z)), "Verwendungszwecke stammen aus der Liste");
 ok(B.RASSEN.some(([r, z]) => r === "Rauhaardackel" && z === "Jagdhund") && B.RASSEN.some(([r, z]) => r === "Sibirian Husky" && z === "Schlittenhund") && B.RASSEN.some(([r, z]) => r === "Bernhardiner" && z === "Such- und Rettungshund"), "Dackel, Husky, Bernhardiner stimmen");
-for (const [q, right, wrong] of [].concat(B.SKELETT_FAKTEN, B.GEBISS_FAKTEN, B.WELPE_FAKTEN, B.KATZE_FAKTEN)) ok(wrong.length >= 3 && !wrong.includes(right) && new Set([right, ...wrong]).size === wrong.length + 1, "Antworten verschieden: " + q);
+for (const [q, right, wrong] of [].concat(B.SKELETT_FAKTEN, B.GEBISS_FAKTEN, B.WELPE_FAKTEN, B.KATZE_FAKTEN, B.WOLF_FAKTEN)) ok(wrong.length >= 3 && !wrong.includes(right) && new Set([right, ...wrong]).size === wrong.length + 1, "Antworten verschieden: " + q);
 ok(B.VERGLEICH.every(([, w]) => ["Hund", "Katze", "beide"].includes(w)), "Vergleich: Hund, Katze oder beide");
 ok(B.norm("Reißzahn") === B.norm("Reisszahn") && B.norm("Säugetier") === B.norm("Saeugetier"), "Schreibweisen mit Umlauten werden gleich behandelt");
 
@@ -34,6 +37,8 @@ for (const id of ids) for (const lvl of A.G[id].lvls) for (let seed = 1; seed <=
     const right = t.options.indexOf(t.answer);
     ok(right >= 0 && t.check(right).ok, "richtig erkannt: " + where);
     ok(t.options.every((_, i) => i === right || !t.check(i).ok), "genau eine richtige Antwort: " + where);
+  } else if (t.kind === "num") {
+    ok(t.check(t.answer).ok && !t.check(String(Number(t.answer) + 1)).ok && !t.check("").ok, "Zahl: " + where);
   } else {
     ok(t.kind === "text" && t.check(t.answer).ok && !t.check("xyz").ok && !t.check("").ok, "Text: " + where);
   }
@@ -72,6 +77,20 @@ for (const id of ids) for (const lvl of A.G[id].lvls) for (let seed = 1; seed <=
     const chain = /Hündin/.test(t.q) ? B.HUENDIN : B.WELPE, nach = /direkt nach/.test(t.q), ref = t.q.match(/„([^“]+)“/)[1], i = chain.indexOf(ref);
     ok(i >= 0 && t.answer === chain[nach ? i + 1 : i - 1], "Reihenfolge: " + where);
   }
+  if (id === "bio.gebiss.zahl") {
+    const z = B.ZAHNFORMEL, k = /Oberkiefer/.test(t.q) ? "Oberkiefer" : /Unterkiefer/.test(t.q) ? "Unterkiefer" : null, sum = (a) => a.reduce((x, y) => x + y, 0);
+    const want = /Oberkiefer und Unterkiefer/.test(t.q) ? sum(z.Oberkiefer) + sum(z.Unterkiefer) : /Reißzähne/.test(t.q) ? 4 : /Zähne hat der Hund im <b>(Ober|Unter)kiefer<\/b> insgesamt/.test(t.q) ? sum(z[k])
+      : /Schneidezähne/.test(t.q) ? z[k][2] + z[k][3] : /Eckzähne/.test(t.q) ? z[k][1] + z[k][4] : /Backenzähne/.test(t.q) ? z[k][0] + z[k][5] : NaN;
+    ok(Number(t.answer) === want, `Zahnformel: ${t.q} -> ${t.answer}, erwartet ${want}`);
+  }
+  if (id === "bio.wolf.stimmt") {
+    const s = t.q.replace(/^.*<span class="nwsatz">/, "").replace(/<\/span>.*$/, ""), row = B.WOLF_STIMMT.find(([x]) => x === s);
+    ok(row && t.answer === (row[1] ? "stimmt" : "stimmt nicht"), "Wolf: wahr oder falsch: " + where);
+  }
+  if (id === "bio.wolf.fakt") {
+    const row = B.WOLF_FAKTEN.find(([q]) => q === t.q);
+    ok(row && t.answer === row[1], "Wolf: Frage und Antwort: " + where);
+  }
   if (id === "bio.vergleich") {
     const s = t.q.replace(/^.*<span class="nwsatz">/, "").replace(/<\/span>.*$/, ""), row = B.VERGLEICH.find(([x]) => x === s);
     ok(row && t.answer === row[1], "Hund, Katze oder beide: " + where);
@@ -96,7 +115,7 @@ for (const [k] of B.SKELETT) {
   const svg = B.skelettSvg(k);
   ok((svg.match(/<svg/g) || []).length === 1 && (svg.match(/<\/svg>/g) || []).length === 1, "Skelett vollständig: " + k);
   ok(JSON.stringify(redGroups(svg)) === JSON.stringify([k]), `genau ein Teil rot: ${k} (${redGroups(svg)})`);
-  ok(B.SKELETT.every(([j]) => svg.includes(`data-teil="${j}"`)), "alle zehn Teile gezeichnet: " + k);
+  ok(B.SKELETT.every(([j]) => svg.includes(`data-teil="${j}"`)), "alle zwölf Teile gezeichnet: " + k);
   ok(!/NaN|undefined/.test(svg), "keine ungültigen Zahlen: " + k);
 }
 ok(redGroups(B.skelettSvg()).length === 0, "ohne Markierung nichts rot");
@@ -107,6 +126,8 @@ ok(redGroups(B.skelettSvg()).length === 0, "ohne Markierung nichts rot");
   const cx = (k) => pts(k).reduce((a, p) => a + p[0], 0) / pts(k).length, cy = (k) => pts(k).reduce((a, p) => a + p[1], 0) / pts(k).length;
   ok(cx("schaedel") > cx("rippen") && cx("rippen") > cx("becken"), "Schädel vorn, Rippen in der Mitte, Becken hinten");
   ok(cy("oberschenkel") < cy("unterschenkel") && cy("unterschenkel") < cy("mittelfuss") && cy("mittelfuss") < cy("zehen"), "Hinterbein von oben nach unten: Ober-, Unterschenkel, Mittelfuß, Zehen");
+  ok(cy("oberschenkel") < cy("knie") && cy("knie") < cy("unterschenkel") + 10, "Knie liegt zwischen Oberschenkel und Unterschenkel");
+  ok(cx("oberarm") > cx("rippen") && cy("oberarm") < cy("zehen"), "Oberarm liegt am Vorderbein oben");
   ok(cy("zehen") > cy("rippen") && cy("rippen") > Math.min(...pts("schulter").map((p) => p[1])) - 1, "Zehen unten, Rippen darüber");
 }
 for (const [k] of B.GEBISS) {
@@ -136,7 +157,7 @@ for (let seed = 1; seed <= 60; seed++) {
 }
 // Themen sind angemeldet
 const tb = A.TOPICS.filter((t) => t.fach === "bio");
-ok(tb.length === 6 && tb.every((t) => t.lern && t.gens.length >= 2 && t.name && t.icon && B.MERKE[t.id]), "sechs Themen mit Aufgaben und Merkkasten");
+ok(tb.length === 7 && tb.every((t) => t.gens.length >= 2 && t.name && t.icon && B.MERKE[t.id]) && tb.filter((t) => !t.lern).map((t) => t.id).join() === "katze", "sieben Themen mit Aufgaben und Merkkasten, nur die Katze steht nicht auf dem Lernzettel");
 ok(tb.every((t) => t.gens.every((g) => A.G[g])), "Themen verweisen auf vorhandene Aufgabenarten");
 ok(A.TOPICS.filter((t) => !t.fach).length >= 13, "Mathe-Themen bleiben unverändert");
 console.log(`Biologie ok (${n} Prüfungen)`);
